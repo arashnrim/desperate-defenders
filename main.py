@@ -1,16 +1,34 @@
-# This is a sample Python script.
+def display_intro_menu():
+    """Displays the menu prompting the user to start or restore a game."""
+    for line in ["Desperate Defenders", "-" * 19, "Defend the city from undead monsters!", ""]:
+        print(line)
+    for index, line in enumerate(["Start a new game", "Load saved game", "Quit"]):
+        print("{}. {}".format(index + 1, line))
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+    # Prompts the user for a choice. If the choice is invalid, the user
+    # will be reprompted again until a valid choice is given.
+    while True:
+        try:
+            choice = int(input("Your choice? "))
+            assert 1 <= choice <= 3
+        except ValueError:
+            print("Your choice should be numeric.", end=" ")
+        except AssertionError:
+            print("Your choice should be between 1 and 3 (inclusive).", end=" ")
+        else:
+            break
+
+    if choice == 1:
+        # TODO: Start a new game
+        pass
+    elif choice == 2:
+        # TODO: Restore and continue a saved game
+        pass
+    elif choice == 3:
+        exit()
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    display_intro_menu()
+else:
+    print("This file is not meant to be imported. Please run this file with `python3`.")
