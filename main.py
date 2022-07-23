@@ -33,10 +33,53 @@ def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice s
         else:
             return choice
 
+
 ####################
 # Game functions
 # All functions in this chunk handles the logic for executing the game.
 ####################
+GAME_VARIABLES = {
+    "columns": 7,
+    "rows": 5,
+    "turn": 0,
+    "target": 20,
+    "killed": 0,
+    "alive": 0,
+    "gold": 10
+}
+
+CHARACTERS = {
+    "player": [
+        {
+            "id": "ARCHR",
+            "name": "Archer",
+            "health": 5,
+            "min_damage": 1,
+            "max_damage": 5,
+            "cost": 5
+        },
+        {
+            "id": "WALL",
+            "name": "Wall",
+            "health": 20,
+            "min_damage": 0,
+            "max_damage": 0,
+            "cost": 3
+        }
+    ],
+    "enemy": [
+        {
+            "id": "ZOMBI",
+            "name": "Zombie",
+            "health": 15,
+            "min_damage": 3,
+            "max_damage": 6,
+            "moves": 1,
+            "reward": 2
+        }
+    ]
+}
+
 # Creates a rows by columns matrix of empty dictionaries. The matrix is
 # used to store the locations of the player's units and the enemies.
 grid = [[{}] * GAME_VARIABLES["columns"]
