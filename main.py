@@ -33,7 +33,82 @@ def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice s
         else:
             return choice
 
+####################
+# Game functions
+# All functions in this chunk handles the logic for executing the game.
+####################
+# Creates a rows by columns matrix of empty dictionaries. The matrix is
+# used to store the locations of the player's units and the enemies.
+grid = [[{}] * GAME_VARIABLES["columns"]
+        for _ in range(GAME_VARIABLES["rows"])]
+
+
+def print_grid():
+    """Prints the map in a player-friendly format."""
+
+    # Prints the alphabetical columns the player can play on.
+    print(" ", end="")
+    user_columns = GAME_VARIABLES["columns"] // 2
+    for column in range(user_columns):
+        print(" {:^5}".format(column + 1), end="")
+    print()
+
+    for row in range(GAME_VARIABLES["rows"] + 1):
+        # Prints the border pattern.
+        print(" ", end="")
+        print("+-----" * GAME_VARIABLES["columns"] + "+")
+
+        if row < GAME_VARIABLES["rows"]:
+            # Prints the row alphabet.
+            print("{}".format(chr(65 + row)), end="")
+
+            for row_line in range(2):
+                if row_line == 1:
+                    print(" ", end="")
+                for col in range(GAME_VARIABLES["columns"]):
+                    if grid[row][col] == {}:
+                        print("|{:^5}".format(""), end="")
+                    else:
+                        if row_line == 0:
+                            print("|{:^5}".format(
+                                grid[row][col]["id"]), end="")
+                        elif row_line == 1:
+                            print("|{:^5}".format(
+                                str(grid[row][col]["current_health"]) + "/" + str(grid[row][col]["health"])), end="")
+                print("|", end="\n" if row_line == 0 else "")
+            print()
         else:
+
+
+def display_game():
+    """Begins all the processes needed to start or progress the game."""
+
+    # Spawns a random enemy if the game has just begun.
+    if GAME_VARIABLES["turn"] == 0:
+        row = randint(0, GAME_VARIABLES["rows"] - 1)
+        spawn_entity(CHARACTERS["enemy"][0],
+                     (row, GAME_VARIABLES["columns"] - 1))
+
+    print_grid()
+
+    # Gives the player their choices.
+    print("1. Buy unit" + " " * 5 + "2. End turn")
+    print("3. Save game" + " " * 4 + "4. Quit")
+    choice = get_choice(4)
+
+    if choice == 1:
+        # TODO: Implement purchasing
+        pass
+    elif choice == 2:
+        # TODO: Advance the round
+        pass
+    elif choice == 3:
+        # TODO: Save the game
+        pass
+    elif choice == 4:
+        # TODO: Exit
+        pass
+
 ####################
 # Execution point
 # The game begins here.
@@ -46,6 +121,7 @@ if __name__ == "__main__":
 
     if choice == 1:
         # TODO: Start a new game
+        display_game()
         pass
     elif choice == 2:
         # TODO: Restore and continue a saved game
