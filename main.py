@@ -105,9 +105,14 @@ def print_grid():
             # Prints the row alphabet.
             print("{}".format(chr(65 + row)), end="")
 
+            # Iterates twice, one for each line the row occupies.
             for row_line in range(2):
                 if row_line == 1:
                     print(" ", end="")
+                # Iterates through each cell, filling the cell with
+                # either the name of the entity or the health of the
+                # entity depending on which row line it is. If no entity
+                # is present, an empty space is printed instead.
                 for col in range(GAME_VARIABLES["columns"]):
                     if grid[row][col] == {}:
                         print("|{:^5}".format(""), end="")
