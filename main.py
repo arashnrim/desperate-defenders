@@ -157,11 +157,11 @@ def display_game():
         # TODO: Exit
         pass
 
+
 ####################
 # Execution point
 # The game begins here.
 ####################
-
 
 if __name__ == "__main__":
     display_intro_menu()
