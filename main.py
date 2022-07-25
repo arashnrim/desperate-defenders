@@ -1,4 +1,5 @@
 from random import randint
+import re
 
 
 def display_intro_menu() -> int:
@@ -125,17 +126,78 @@ def print_grid():
                                 str(grid[row][col]["current_health"]) + "/" + str(grid[row][col]["health"])), end="")
                 print("|", end="\n" if row_line == 0 else "")
             print()
+
+
+def spawn_entity(entity, position):
+    """Spawns a given entity in the last column in a random row.
+
+    Parameters:
+        entity (dict): The entity to spawn.
+        position (tuple): The position to spawn the entity, comprised of (row, col).
+
+    Returns:
+        bool: True if the entity was spawned, False if not.
+    """
+    entity["current_health"] = entity["health"]
+
+    # Checks if the entity can be spawned in the given position.
+    if grid[position[0]][position[1]] == {}:
+        grid[position[0]][position[1]] = entity
+        return True
+    else:
+        return False
+
+
+def get_position() -> tuple:
+    """Prompts the user for a position and re-prompts them until
+    a valid position is provided.
+
+    Returns:
+        tuple: The user-provided position, comprised of (row, col).
+    """
+    while True:
+        try:
+            position = input("Place where? ")
+            assert re.match(r"[A-Za-z]\d{1,2}", position)
+        except AssertionError:
+            print(
+                "Please provide the position in the format XY (X is an alphabet, Y is a numeral).", end=" ")
         else:
+            # # Checks if the provided row and col values are valid.
+            row, col = position[0].upper(), int(position[1:])
+            if ord(row) - 65 <= GAME_VARIABLES["rows"] and col - 1 <= GAME_VARIABLES["columns"] // 2:
+                return ord(row) - 65, col - 1
+            else:
+                # TODO: Make less ambiguous statements
+                print("Please provide a valid position.", end=" ")
+
+
+def purchase_defense():
+    """Prompts the player to purchase a defense unit."""
+    defenses = CHARACTERS["player"]
+
+    print("What unit do you wish to buy?")
+    for index in range(len(defenses) + 1):
+        if index < len(defenses):
+            print("{}. {} ({} gold)".format(
+                index + 1, defenses[index]["name"], defenses[index]["cost"]))
+        else:
+            print("{}. Don't buy".format(index + 1))
+    choice = get_choice(len(defenses) + 1)
+
+    if choice != len(defenses) + 1:
+        position = get_position()
+        if spawn_entity(defenses[choice - 1], position):
+            GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
+            GAME_VARIABLES["turn"] += 1
+        else:
+            print("Failed to place unit. Is something already there?")
+
+    display_game()
 
 
 def display_game():
     """Begins all the processes needed to start or progress the game."""
-
-    # Spawns a random enemy if the game has just begun.
-    if GAME_VARIABLES["turn"] == 0:
-        row = randint(0, GAME_VARIABLES["rows"] - 1)
-        spawn_entity(CHARACTERS["enemy"][0],
-                     (row, GAME_VARIABLES["columns"] - 1))
 
     print_grid()
 
@@ -146,7 +208,7 @@ def display_game():
 
     if choice == 1:
         # TODO: Implement purchasing
-        pass
+        purchase_defense()
     elif choice == 2:
         # TODO: Advance the round
         pass
@@ -157,11 +219,11 @@ def display_game():
         # TODO: Exit
         pass
 
-
 ####################
 # Execution point
 # The game begins here.
 ####################
+
 
 if __name__ == "__main__":
     display_intro_menu()
