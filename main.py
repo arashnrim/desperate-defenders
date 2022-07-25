@@ -87,6 +87,19 @@ grid = [[{}] * GAME_VARIABLES["columns"]
         for _ in range(GAME_VARIABLES["rows"])]
 
 
+def end_game(catalyst_entity):
+    """Ends the game and gives the player guilt. Seriously, how could
+    they let this happen?
+
+    Parameters:
+        catalyst_entity (dict): The entity that caused the end of the game.
+    """
+    print("A {} has reached the city! All is lost!".format(
+        catalyst_entity["name"]))
+    print("You have lost the game. :(")
+    exit()
+
+
 def print_grid():
     """Prints the map in a player-friendly format."""
 
@@ -148,6 +161,22 @@ def spawn_entity(entity, position):
         return False
 
 
+def spawn_enemy():
+    """Spawns a random enemy in any row of the last column if there are
+    no monsters in the grid. Depends on spawn_entity()."""
+    no_enemies = True
+    for row in grid:
+        for cell in row:
+            if cell != {} and cell["type"] == "enemy":
+                no_enemies = False
+
+    if no_enemies:
+        enemy = random.choice(CHARACTERS["enemy"])
+        position = (random.randint(
+            0, GAME_VARIABLES["rows"] - 1), GAME_VARIABLES["columns"] - 1)
+        spawn_entity(enemy, position)
+
+
 def get_position() -> tuple:
     """Prompts the user for a position and re-prompts them until
     a valid position is provided.
@@ -201,7 +230,46 @@ def purchase_defense():
         else:
             break
 
-    display_game()
+
+def advance_entities():
+    for r_index in range(len(grid)):
+        for c_index in range(GAME_VARIABLES["columns"]):
+            entity = grid[r_index][c_index]
+
+            # Activate archers
+            if entity != {} and entity["id"] == "ARCHR":
+                for ahead_col in range(c_index + 1, GAME_VARIABLES["columns"]):
+                    if grid[r_index][ahead_col] != {} and grid[r_index][ahead_col]["type"] == "enemy":
+                        damage = random.randint(
+                            entity["min_damage"], entity["max_damage"])
+                        grid[r_index][ahead_col]["current_health"] -= damage
+                        print("{} in lane {} shoots {} for {} damage!".format(
+                            entity["name"], chr(65 + r_index), grid[r_index][ahead_col]["name"], damage))
+                        if grid[r_index][ahead_col]["current_health"] <= 0:
+                            grid[r_index][ahead_col] = {}
+                            GAME_VARIABLES["gold"] += grid[r_index][ahead_col]["reward"]
+                        break
+
+            # Advance enemies
+            elif entity != {} and entity["type"] == "enemy":
+                resulting_col = c_index - entity["moves"]
+                if resulting_col >= 0:
+                    if grid[r_index][resulting_col] != {}:
+                        damage = random.randint(
+                            entity["min_damage"], entity["max_damage"])
+                        grid[r_index][resulting_col]["current_health"] -= damage
+                        print("{} in lane {} bites {} for {} damage!".format(
+                            entity["name"], chr(65 + r_index), grid[r_index][resulting_col]["name"], damage))
+                        if grid[r_index][resulting_col]["current_health"] <= 0:
+                            grid[r_index][resulting_col] = entity
+                            grid[r_index][c_index] = {}
+                            print("{} advances!".format(entity["name"]))
+                    else:
+                        grid[r_index][resulting_col] = entity
+                        grid[r_index][c_index] = {}
+                        print("{} advances!".format(entity["name"]))
+                else:
+                    end_game(entity)
 
 
 def display_game(previous_turn=0):
@@ -230,7 +298,8 @@ def display_game(previous_turn=0):
         pass
 
     if previous_turn != GAME_VARIABLES["turn"]:
-        # spawn_enemy()
+        GAME_VARIABLES["gold"] += 1
+        spawn_enemy()
         advance_entities()
 
     display_game(GAME_VARIABLES["turn"])
