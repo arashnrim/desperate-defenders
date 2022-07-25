@@ -1,4 +1,4 @@
-from random import randint
+import random
 import re
 
 
@@ -56,7 +56,7 @@ CHARACTERS = {
             "name": "Archer",
             "health": 5,
             "min_damage": 1,
-            "max_damage": 5,
+            "max_damage": 4,
             "cost": 5
         },
         {
