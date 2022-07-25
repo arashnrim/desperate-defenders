@@ -216,16 +216,16 @@ def purchase_defense():
             print("{}. Don't buy".format(index + 1))
 
     while True:
-    choice = get_choice(len(defenses) + 1)
-    if choice != len(defenses) + 1:
+        choice = get_choice(len(defenses) + 1)
+        if choice != len(defenses) + 1:
             if GAME_VARIABLES["gold"] - defenses[choice - 1]["cost"] >= 0:
                 GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
-        position = get_position()
-        if spawn_entity(defenses[choice - 1], position):
-            GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
-            GAME_VARIABLES["turn"] += 1
-        else:
-            print("Failed to place unit. Is something already there?")
+                position = get_position()
+                if spawn_entity(defenses[choice - 1], position):
+                    GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
+                    GAME_VARIABLES["turn"] += 1
+                else:
+                    print("Failed to place unit. Is something already there?")
                 break
             else:
                 print("Not enough coins!")
