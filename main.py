@@ -151,11 +151,13 @@ def spawn_entity(entity, position):
     Returns:
         bool: True if the entity was spawned, False if not.
     """
-    entity["current_health"] = entity["health"]
+    placed_entity = entity.copy()
+    placed_entity["type"] = "enemy" if placed_entity in CHARACTERS["enemy"] != -1 else "player"
+    placed_entity["current_health"] = placed_entity["health"]
 
     # Checks if the entity can be spawned in the given position.
     if grid[position[0]][position[1]] == {}:
-        grid[position[0]][position[1]] = entity
+        grid[position[0]][position[1]] = placed_entity
         return True
     else:
         return False
