@@ -183,22 +183,32 @@ def purchase_defense():
                 index + 1, defenses[index]["name"], defenses[index]["cost"]))
         else:
             print("{}. Don't buy".format(index + 1))
-    choice = get_choice(len(defenses) + 1)
 
+    while True:
+    choice = get_choice(len(defenses) + 1)
     if choice != len(defenses) + 1:
+            if GAME_VARIABLES["gold"] - defenses[choice - 1]["cost"] >= 0:
+                GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
         position = get_position()
         if spawn_entity(defenses[choice - 1], position):
             GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
             GAME_VARIABLES["turn"] += 1
         else:
             print("Failed to place unit. Is something already there?")
+                break
+            else:
+                print("Not enough coins!")
+        else:
+            break
 
     display_game()
 
 
-def display_game():
-    """Begins all the processes needed to start or progress the game."""
+def display_game(previous_turn=0):
+    """Begins all the processes needed to start or progress the game.
 
+    Parameters:
+        previous_turn (int): The turn number of the previous game."""
     print_grid()
 
     # Gives the player their choices.
@@ -211,13 +221,19 @@ def display_game():
         purchase_defense()
     elif choice == 2:
         # TODO: Advance the round
-        pass
+        GAME_VARIABLES["turn"] += 1
     elif choice == 3:
         # TODO: Save the game
         pass
     elif choice == 4:
         # TODO: Exit
         pass
+
+    if previous_turn != GAME_VARIABLES["turn"]:
+        # spawn_enemy()
+        advance_entities()
+
+    display_game(GAME_VARIABLES["turn"])
 
 ####################
 # Execution point
@@ -231,6 +247,7 @@ if __name__ == "__main__":
 
     if choice == 1:
         # TODO: Start a new game
+        spawn_enemy()
         display_game()
         pass
     elif choice == 2:
