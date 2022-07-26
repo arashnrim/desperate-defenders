@@ -2,7 +2,7 @@ import random
 import re
 
 
-def display_intro_menu() -> int:
+def display_intro_menu():
     """Displays the menu to the user to start or restore a game."""
     for line in ["Desperate Defenders", "-" * 19, "Defend the city from undead monsters!", ""]:
         print(line)
@@ -103,7 +103,7 @@ field = [[{}] * game_variables["columns"]
          for _ in range(game_variables["rows"])]
 
 
-def end_game(catalyst_entity):
+def end_game(catalyst_entity: dict):
     """Ends the game and gives the player guilt. Seriously, how could
     they let this happen?
 
@@ -157,7 +157,7 @@ def draw_field():
             print()
 
 
-def spawn_entity(entity, position):
+def spawn_entity(entity: dict, position: tuple) -> bool:
     """Spawns a given entity in the last column in a random row.
 
     Parameters:
@@ -250,6 +250,8 @@ def purchase_defense():
 
 
 def advance_entities():
+    """Performs all the logical code to advance the round, including
+    performing damage calculations and advancing enemies."""
     for r_index in range(len(field)):
         for c_index in range(game_variables["columns"]):
             entity = field[r_index][c_index]
@@ -346,10 +348,8 @@ if __name__ == "__main__":
     choice = get_choice(3)
 
     if choice == 1:
-        # TODO: Start a new game
         spawn_enemy()
         display_game()
-        pass
     elif choice == 2:
         # TODO: Restore and continue a saved game
         pass
