@@ -317,6 +317,7 @@ def progress_game(previous_turn=0):
         print("You have protected the city! You win!")
         exit()
 
+    spawn_enemy()
     draw_field()
 
     # Gives the player their choices.
@@ -339,7 +340,6 @@ def progress_game(previous_turn=0):
 
     if previous_turn != game_variables["turn"]:
         game_variables["gold"] += 1
-        spawn_enemy()
         advance_entities()
 
     progress_game(game_variables["turn"])
