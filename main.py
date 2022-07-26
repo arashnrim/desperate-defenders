@@ -78,7 +78,6 @@ game_variables = {
     "turn": 0,
     "target": 20,
     "killed": 0,
-    "alive": 0,
     "gold": 10
 }
 
@@ -272,7 +271,9 @@ def advance_entities():
                             entity["name"], chr(65 + r_index), entity_ahead["name"], damage))
 
                         if entity_ahead["current_health"] <= 0:
+                            print("{} dies!".format(entity_ahead["name"]))
                             game_variables["gold"] += entity_ahead["reward"]
+                            game_variables["killed"] += 1
                             field[r_index][ahead_col] = {}
                         break
 
@@ -294,6 +295,7 @@ def advance_entities():
 
                         # TODO: Is there a way to merge the two below? They do the same thing!
                         if future_cell["current_health"] <= 0:
+                            print("{} dies!".format(future_cell["name"]))
                             field[r_index][resulting_col] = entity
                             print("{} advances!".format(entity["name"]))
                             field[r_index][c_index] = {}
@@ -305,11 +307,16 @@ def advance_entities():
                     end_game(entity)
 
 
-def display_game(previous_turn=0):
+def progress_game(previous_turn=0):
     """Begins all the processes needed to start or progress the game.
 
     Parameters:
         previous_turn (int): The turn number of the previous game."""
+    # Checks if the conditions are met to warrant a win.
+    if game_variables["killed"] >= game_variables["target"]:
+        print("You have protected the city! You win!")
+        exit()
+
     draw_field()
 
     # Gives the player their choices.
@@ -335,7 +342,7 @@ def display_game(previous_turn=0):
         spawn_enemy()
         advance_entities()
 
-    display_game(game_variables["turn"])
+    progress_game(game_variables["turn"])
 
 ####################
 # Execution point
@@ -348,8 +355,7 @@ if __name__ == "__main__":
     choice = get_choice(3)
 
     if choice == 1:
-        spawn_enemy()
-        display_game()
+        progress_game()
     elif choice == 2:
         # TODO: Restore and continue a saved game
         pass
