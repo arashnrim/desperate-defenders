@@ -1,5 +1,6 @@
 import random
 import re
+from unittest import result
 
 
 def display_intro_menu() -> int:
@@ -39,15 +40,6 @@ def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice s
 # Game functions
 # All functions in this chunk handles the logic for executing the game.
 ####################
-GAME_VARIABLES = {
-    "columns": 7,
-    "rows": 5,
-    "turn": 0,
-    "target": 20,
-    "killed": 0,
-    "alive": 0,
-    "gold": 10
-}
 
 CHARACTERS = {
     "player": [
@@ -81,10 +73,35 @@ CHARACTERS = {
     ]
 }
 
-# Creates a rows by columns matrix of empty dictionaries. The matrix is
-# used to store the locations of the player's units and the enemies.
-grid = [[{}] * GAME_VARIABLES["columns"]
-        for _ in range(GAME_VARIABLES["rows"])]
+game_variables = {
+    "columns": 7,
+    "rows": 5,
+    "turn": 0,
+    "target": 20,
+    "killed": 0,
+    "alive": 0,
+    "gold": 10
+}
+
+# This variable keeps track of how the game is played. It is a row by
+# column (defined in game_variables) matrix. Cells in the matrix can
+# have one of two values:
+# - {}: There is nothing occupying the cell.
+# - A dict containing the following keys:
+#   - id (str): The id of the entity occupying the cell.
+#   - type (str): The type of entity occupying the cell.
+#       - "player"
+#       - "enemy"
+#   - current_health (int): The current health of the entity occupying
+# the cell.
+#   - health (int): The maximum health of the entity occupying the cell.
+#   - min_damage (int): The minimum damage the entity can deal.
+#   - max_damage (int): The maximum damage the entity can deal.
+#   - moves (int): The number of moves the entity can make.
+#   - reward (int): The reward the entity gives the player. (if type is
+# enemy)
+field = [[{}] * game_variables["columns"]
+         for _ in range(game_variables["rows"])]
 
 
 def end_game(catalyst_entity):
@@ -100,22 +117,24 @@ def end_game(catalyst_entity):
     exit()
 
 
-def print_grid():
-    """Prints the map in a player-friendly format."""
-
-    # Prints the alphabetical columns the player can play on.
+def draw_field():
+    """Prints the field in a player-friendly format."""
     print(" ", end="")
-    user_columns = GAME_VARIABLES["columns"] // 2
+
+    # Dynamically determines the columns the player can play on. This is
+    # done by splitting the number of columns and allocating the first
+    # half to the player.
+    user_columns = game_variables["columns"] // 2
     for column in range(user_columns):
         print(" {:^5}".format(column + 1), end="")
     print()
 
-    for row in range(GAME_VARIABLES["rows"] + 1):
+    for row in range(game_variables["rows"] + 1):
         # Prints the border pattern.
         print(" ", end="")
-        print("+-----" * GAME_VARIABLES["columns"] + "+")
+        print("+-----" * game_variables["columns"] + "+")
 
-        if row < GAME_VARIABLES["rows"]:
+        if row < game_variables["rows"]:
             # Prints the row alphabet.
             print("{}".format(chr(65 + row)), end="")
 
@@ -127,16 +146,14 @@ def print_grid():
                 # either the name of the entity or the health of the
                 # entity depending on which row line it is. If no entity
                 # is present, an empty space is printed instead.
-                for col in range(GAME_VARIABLES["columns"]):
-                    if grid[row][col] == {}:
-                        print("|{:^5}".format(""), end="")
-                    else:
-                        if row_line == 0:
-                            print("|{:^5}".format(
-                                grid[row][col]["id"]), end="")
-                        elif row_line == 1:
-                            print("|{:^5}".format(
-                                str(grid[row][col]["current_health"]) + "/" + str(grid[row][col]["health"])), end="")
+                for col in range(game_variables["columns"]):
+                    cell, value = field[row][col], ""
+                    if cell != {} and row_line == 0:
+                        value = cell["id"]
+                    elif cell != {} and row_line == 1:
+                        value = str(
+                            cell["current_health"]) + "/" + str(cell["health"])
+                    print("|{:^5}".format(value), end="")
                 print("|", end="\n" if row_line == 0 else "")
             print()
 
@@ -156,8 +173,8 @@ def spawn_entity(entity, position):
     placed_entity["current_health"] = placed_entity["health"]
 
     # Checks if the entity can be spawned in the given position.
-    if grid[position[0]][position[1]] == {}:
-        grid[position[0]][position[1]] = placed_entity
+    if field[position[0]][position[1]] == {}:
+        field[position[0]][position[1]] = placed_entity
         return True
     else:
         return False
@@ -167,7 +184,7 @@ def spawn_enemy():
     """Spawns a random enemy in any row of the last column if there are
     no monsters in the grid. Depends on spawn_entity()."""
     no_enemies = True
-    for row in grid:
+    for row in field:
         for cell in row:
             if cell != {} and cell["type"] == "enemy":
                 no_enemies = False
@@ -175,7 +192,7 @@ def spawn_enemy():
     if no_enemies:
         enemy = random.choice(CHARACTERS["enemy"])
         position = (random.randint(
-            0, GAME_VARIABLES["rows"] - 1), GAME_VARIABLES["columns"] - 1)
+            0, game_variables["rows"] - 1), game_variables["columns"] - 1)
         spawn_entity(enemy, position)
 
 
@@ -194,9 +211,9 @@ def get_position() -> tuple:
             print(
                 "Please provide the position in the format XY (X is an alphabet, Y is a numeral).", end=" ")
         else:
-            # # Checks if the provided row and col values are valid.
+            # Checks if the provided row and col values are valid.
             row, col = position[0].upper(), int(position[1:])
-            if ord(row) - 65 <= GAME_VARIABLES["rows"] and col - 1 <= GAME_VARIABLES["columns"] // 2:
+            if ord(row) - 65 <= game_variables["rows"] and col - 1 <= game_variables["columns"] // 2:
                 return ord(row) - 65, col - 1
             else:
                 # TODO: Make less ambiguous statements
@@ -218,12 +235,12 @@ def purchase_defense():
     while True:
         choice = get_choice(len(defenses) + 1)
         if choice != len(defenses) + 1:
-            if GAME_VARIABLES["gold"] - defenses[choice - 1]["cost"] >= 0:
-                GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
+            if game_variables["gold"] - defenses[choice - 1]["cost"] >= 0:
+                game_variables["gold"] -= defenses[choice - 1]["cost"]
                 position = get_position()
                 if spawn_entity(defenses[choice - 1], position):
-                    GAME_VARIABLES["gold"] -= defenses[choice - 1]["cost"]
-                    GAME_VARIABLES["turn"] += 1
+                    game_variables["gold"] -= defenses[choice - 1]["cost"]
+                    game_variables["turn"] += 1
                 else:
                     print("Failed to place unit. Is something already there?")
                 break
@@ -234,42 +251,55 @@ def purchase_defense():
 
 
 def advance_entities():
-    for r_index in range(len(grid)):
-        for c_index in range(GAME_VARIABLES["columns"]):
-            entity = grid[r_index][c_index]
+    for r_index in range(len(field)):
+        for c_index in range(game_variables["columns"]):
+            entity = field[r_index][c_index]
 
-            # Activate archers
+            # Activates the archers; the code below performs the
+            # attacking in a way that is expected of the archers.
             if entity != {} and entity["id"] == "ARCHR":
-                for ahead_col in range(c_index + 1, GAME_VARIABLES["columns"]):
-                    if grid[r_index][ahead_col] != {} and grid[r_index][ahead_col]["type"] == "enemy":
+                for ahead_col in range(c_index + 1, game_variables["columns"]):
+                    # Checks the first entity that lies in front of the
+                    # archer that is an enemy, and deals damage to it.
+                    entity_ahead = field[r_index][ahead_col]
+                    if entity_ahead != {} and entity_ahead["type"] == "enemy":
                         damage = random.randint(
                             entity["min_damage"], entity["max_damage"])
-                        grid[r_index][ahead_col]["current_health"] -= damage
+                        entity_ahead["current_health"] -= damage
+
                         print("{} in lane {} shoots {} for {} damage!".format(
-                            entity["name"], chr(65 + r_index), grid[r_index][ahead_col]["name"], damage))
-                        if grid[r_index][ahead_col]["current_health"] <= 0:
-                            grid[r_index][ahead_col] = {}
-                            GAME_VARIABLES["gold"] += grid[r_index][ahead_col]["reward"]
+                            entity["name"], chr(65 + r_index), entity_ahead["name"], damage))
+
+                        if entity_ahead["current_health"] <= 0:
+                            game_variables["gold"] += entity_ahead["reward"]
+                            field[r_index][ahead_col] = {}
                         break
 
-            # Advance enemies
+            # Advances the enemies; the code below advances the enemies
+            # and performs any attacks that are expected of the enemies.
             elif entity != {} and entity["type"] == "enemy":
                 resulting_col = c_index - entity["moves"]
+                future_cell = field[r_index][resulting_col]
                 if resulting_col >= 0:
-                    if grid[r_index][resulting_col] != {}:
+                    # Checks if the cell the enemy wishes to occupy is
+                    # empty; if not, there is another entity in the way.
+                    if future_cell != {}:
                         damage = random.randint(
                             entity["min_damage"], entity["max_damage"])
-                        grid[r_index][resulting_col]["current_health"] -= damage
+                        future_cell["current_health"] -= damage
+
                         print("{} in lane {} bites {} for {} damage!".format(
-                            entity["name"], chr(65 + r_index), grid[r_index][resulting_col]["name"], damage))
-                        if grid[r_index][resulting_col]["current_health"] <= 0:
-                            grid[r_index][resulting_col] = entity
-                            grid[r_index][c_index] = {}
+                            entity["name"], chr(65 + r_index), future_cell["name"], damage))
+
+                        # TODO: Is there a way to merge the two below? They do the same thing!
+                        if future_cell["current_health"] <= 0:
+                            field[r_index][resulting_col] = entity
                             print("{} advances!".format(entity["name"]))
+                            field[r_index][c_index] = {}
                     else:
-                        grid[r_index][resulting_col] = entity
-                        grid[r_index][c_index] = {}
+                        field[r_index][resulting_col] = entity
                         print("{} advances!".format(entity["name"]))
+                        field[r_index][c_index] = {}
                 else:
                     end_game(entity)
 
@@ -279,7 +309,7 @@ def display_game(previous_turn=0):
 
     Parameters:
         previous_turn (int): The turn number of the previous game."""
-    print_grid()
+    draw_field()
 
     # Gives the player their choices.
     print("1. Buy unit" + " " * 5 + "2. End turn")
@@ -291,7 +321,7 @@ def display_game(previous_turn=0):
         purchase_defense()
     elif choice == 2:
         # TODO: Advance the round
-        GAME_VARIABLES["turn"] += 1
+        game_variables["turn"] += 1
     elif choice == 3:
         # TODO: Save the game
         pass
@@ -299,12 +329,12 @@ def display_game(previous_turn=0):
         # TODO: Exit
         pass
 
-    if previous_turn != GAME_VARIABLES["turn"]:
-        GAME_VARIABLES["gold"] += 1
+    if previous_turn != game_variables["turn"]:
+        game_variables["gold"] += 1
         spawn_enemy()
         advance_entities()
 
-    display_game(GAME_VARIABLES["turn"])
+    display_game(game_variables["turn"])
 
 ####################
 # Execution point
