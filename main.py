@@ -326,8 +326,8 @@ def display_game(previous_turn=0):
         # TODO: Save the game
         pass
     elif choice == 4:
-        # TODO: Exit
-        pass
+        print("\nSee you next time!")
+        exit()
 
     if previous_turn != game_variables["turn"]:
         game_variables["gold"] += 1
