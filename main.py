@@ -1,6 +1,5 @@
 import random
 import re
-from unittest import result
 
 
 def display_intro_menu() -> int:
