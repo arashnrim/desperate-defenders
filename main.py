@@ -1,5 +1,7 @@
+import json
 import random
 import re
+import os
 
 
 def display_intro_menu():
@@ -34,11 +36,11 @@ def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice s
         else:
             return choice
 
-
 ####################
 # Game functions
 # All functions in this chunk handles the logic for executing the game.
 ####################
+
 
 CHARACTERS = {
     "player": [
@@ -332,8 +334,9 @@ def progress_game(previous_turn=0):
         # TODO: Advance the round
         game_variables["turn"] += 1
     elif choice == 3:
-        # TODO: Save the game
-        pass
+        saved = save_game()
+        if saved:
+            print("\nGame saved!")
     elif choice == 4:
         print("\nSee you next time!")
         exit()
@@ -343,6 +346,74 @@ def progress_game(previous_turn=0):
         advance_entities()
 
     progress_game(game_variables["turn"])
+
+####################
+# Game restoration and saving functions
+# All functions in this chunk handles the logic for saving and restoring
+# games.
+####################
+
+
+SAVE_GAME_FILE_NAME = "saved_game.dd"
+
+# def get_file_name() -> str:
+#     """Prompts the user for a string to a valid file name and re-prompts
+#     them until a valid file name (that exists) is provided.
+
+#     Returns:
+#         str: A valid file name.
+#     """
+#     while True:
+#         file_name = input("Enter the file name of your saved game: ")
+#         if re.match(r"^[a-zA-Z0-9_]+$", file_name):
+#             if file_name in os.listdir():
+#                 return file_name
+#             else:
+#                 print("The saved game does not exist. Try again.", end=" ")
+#         else:
+#             print("The name of the file should only contain letters, numbers, and underscores. Try again.", end=" ")
+
+
+def save_game() -> bool:
+    """Saves the game to a file.
+
+    Returns:
+        bool: True if the game was saved successfully, False otherwise.
+    """
+    if SAVE_GAME_FILE_NAME in os.listdir():
+        confirm = input("A saved game already exists. Overwrite? (y/N): ")
+        if confirm.lower() != "y":
+            return False
+
+    with open(SAVE_GAME_FILE_NAME, "w") as file:
+        lines = []
+
+        # Writes the headers in the file to identify the file as a saved
+        # game.
+        lines.extend(["### DESPERATE DEFENDERS SAVE FILE ###",
+                     "\nThis file was created by the Desperate Defenders game. Do not change the ", "\nvalues in this file; otherwise, your game may change or be corrupted!"])
+
+        # Writes the game variables to the file.
+        lines.append("\n\n# Game variables #")
+        for key, value in game_variables.items():
+            lines.append("\n{},{}".format(key, value))
+
+        # Writes the field to the file.
+        lines.append("\n\n# Field #")
+        for row in field:
+            row_values = ""
+            for c_index, cell in enumerate(row):
+                # JSON is practically similar to Python's dictionary
+                # format (in this use case). Therefore, we can use the
+                # json package to handle reading and writing.
+                row_values += json.dumps(cell)
+                if c_index != len(row) - 1:
+                    row_values += ","
+            lines.append("\n{}".format(row_values))
+
+        # Writes the lines to the file.
+        file.writelines(lines)
+        return True
 
 ####################
 # Execution point
