@@ -446,7 +446,7 @@ def load_game() -> bool:
                     preserved_file_name = datetime.now().strftime("%Y%m%d-%H%M%S") + ".dd"
                     with open(preserved_file_name, "w") as preserved_file:
                         preserved_file.writelines(data)
-                    # os.remove(SAVE_GAME_FILE_NAME)
+                    os.remove(SAVE_GAME_FILE_NAME)
 
                     game_variables = redundant_game_variables.copy()
                     field = [[{}] * game_variables["columns"]
