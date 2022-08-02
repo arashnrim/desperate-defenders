@@ -188,16 +188,20 @@ def spawn_entity(entity: dict, position: tuple) -> bool:
         return False
 
 
-def spawn_enemy():
-    """Spawns a random enemy in any row of the last column if there are
-    no monsters in the grid. Depends on spawn_entity()."""
+def spawn_enemy(override=False):
+    """Spawns a random enemy in any row of the last column.
+    Depends on spawn_entity().
+
+    Parameters:
+        override (bool): If True, spawns an enemy in the last column of
+        the last row regardless of the current circumstances."""
     no_enemies = True
     for row in field:
         for cell in row:
             if cell != {} and cell["type"] == "enemy":
                 no_enemies = False
 
-    if no_enemies:
+    if no_enemies or override:
         enemy = random.choice(CHARACTERS["enemy"])
         position = (random.randint(
             0, game_variables["rows"] - 1), game_variables["columns"] - 1)
@@ -244,7 +248,6 @@ def purchase_defense():
         choice = get_choice(len(defenses) + 1)
         if choice != len(defenses) + 1:
             if game_variables["gold"] - defenses[choice - 1]["cost"] >= 0:
-                game_variables["gold"] -= defenses[choice - 1]["cost"]
                 position = get_position()
                 if spawn_entity(defenses[choice - 1], position):
                     game_variables["gold"] -= defenses[choice - 1]["cost"]
@@ -293,12 +296,37 @@ def advance_entities():
             elif entity != {} and entity["type"] == "enemy":
                 resulting_col = c_index - entity["moves"]
                 future_cell = field[r_index][resulting_col]
-                if resulting_col >= 0:
+                ahead_cell = field[r_index][c_index - 1]
+
+                no_defense = True
+                for cell_index in range(resulting_col, c_index):
+                    if field[r_index][cell_index] != {} and field[r_index][cell_index]["type"] == "player":
+                        no_defense = False
+                        break
+
+                if resulting_col < 0 and no_defense:
+                    end_game(entity)
+                else:
+                    damage = random.randint(
+                        entity["min_damage"], entity["max_damage"])
+
+                    # Checks if the cell in front of the enemy is occupied
+                    # by a defence entity. If so, the enemy attacks that
+                    # entity instead.
+                    if ahead_cell != {} and ahead_cell["type"] == "player":
+                        ahead_cell["current_health"] -= damage
+
+                        print("{} in lane {} bites {} for {} damage!".format(
+                            entity["name"], chr(65 + r_index), ahead_cell["name"], damage))
+
+                        if ahead_cell["current_health"] <= 0:
+                            print("{} dies!".format(ahead_cell["name"]))
+                            field[r_index][c_index - 1] = entity
+                            print("{} advances!".format(entity["name"]))
+                            field[r_index][c_index] = {}
                     # Checks if the cell the enemy wishes to occupy is
                     # empty; if not, there is another entity in the way.
-                    if future_cell != {}:
-                        damage = random.randint(
-                            entity["min_damage"], entity["max_damage"])
+                    elif future_cell != {}:
                         future_cell["current_health"] -= damage
 
                         print("{} in lane {} bites {} for {} damage!".format(
