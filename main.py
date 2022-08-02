@@ -71,6 +71,15 @@ CHARACTERS = {
             "max_damage": 6,
             "moves": 1,
             "reward": 2
+        },
+        {
+            "id": "WWOLF",
+            "name": "Werewolf",
+            "health": 10,
+            "min_damage": 1,
+            "max_damage": 4,
+            "moves": 2,
+            "reward": 3
         }
     ]
 }
