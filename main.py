@@ -311,8 +311,35 @@ def advance_entities():
                         field[r_index][resulting_col] = entity
                         print("{} advances!".format(entity["name"]))
                         field[r_index][c_index] = {}
-                else:
-                    end_game(entity)
+
+
+def show_stats():
+    """Shows the users statistics of the game. Includes the current turn
+    number, threat level, danger level, amount of gold, and number of
+    monsters killed."""
+    stats = ""
+
+    # Adds turn info to stats.
+    stats += "Turn {:<2}".format(game_variables["turn"] + 1)
+    stats += " " * 5
+
+    # Adds threat level info to stats.
+    stats += "Threat = [{:<10}]".format("-" * game_variables["threat_level"])
+    stats += " " * 5
+
+    # Adds danger level info to stats.
+    stats += "Danger Level {:<2}".format(game_variables["danger_level"])
+    stats += "\n"
+
+    # Adds gold info to stats.
+    stats += "Gold = {:>2}".format(game_variables["gold"])
+    stats += " " * 3
+
+    # Adds killed info to stats.
+    stats += "Monsters killed = {}/{}".format(
+        game_variables["killed"], game_variables["target"])
+
+    print(stats)
 
 
 def progress_game(previous_turn=0):
@@ -327,6 +354,7 @@ def progress_game(previous_turn=0):
 
     spawn_enemy()
     draw_field()
+    show_stats()
 
     # Gives the player their choices.
     print("1. Buy unit" + " " * 5 + "2. End turn")
