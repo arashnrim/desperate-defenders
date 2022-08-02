@@ -1,3 +1,7 @@
+# Programming I
+# Assignment
+# Arash Nur Iman (REDACTED, REDACTED)
+
 from datetime import datetime
 import json
 import random
