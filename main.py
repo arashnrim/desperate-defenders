@@ -79,6 +79,8 @@ game_variables = {
     "columns": 7,
     "rows": 5,
     "turn": 0,
+    "threat_level": 0,
+    "danger_level": 1,
     "target": 20,
     "killed": 0,
     "gold": 10
@@ -282,6 +284,7 @@ def advance_entities():
                             print("{} dies!".format(entity_ahead["name"]))
                             game_variables["gold"] += entity_ahead["reward"]
                             game_variables["killed"] += 1
+                            game_variables["threat_level"] += entity_ahead["reward"]
                             field[r_index][ahead_col] = {}
                         break
 
@@ -374,8 +377,13 @@ def progress_game(previous_turn=0):
         exit()
 
     if previous_turn != game_variables["turn"]:
-        game_variables["gold"] += 1
         advance_entities()
+        game_variables["gold"] += 1
+        game_variables["threat_level"] += random.randint(
+            1, game_variables["danger_level"])
+        while game_variables["threat_level"] >= 10:
+            spawn_enemy(override=True)
+            game_variables["threat_level"] -= 10
 
     progress_game(game_variables["turn"])
 
