@@ -1,4 +1,3 @@
-from curses.ascii import isdigit
 from datetime import datetime
 import json
 import random
@@ -38,11 +37,11 @@ def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice s
         else:
             return choice
 
+
 ####################
 # Game functions
 # All functions in this chunk handles the logic for executing the game.
 ####################
-
 
 CHARACTERS = {
     "player": [
@@ -335,7 +334,6 @@ def progress_game(previous_turn=0):
     choice = get_choice(4)
 
     if choice == 1:
-        # TODO: Implement purchasing
         purchase_defense()
     elif choice == 2:
         game_variables["turn"] += 1
@@ -353,12 +351,12 @@ def progress_game(previous_turn=0):
 
     progress_game(game_variables["turn"])
 
+
 ####################
 # Game restoration and saving functions
 # All functions in this chunk handles the logic for saving and restoring
 # games.
 ####################
-
 
 SAVE_GAME_FILE_NAME = "saved_game.dd"
 
