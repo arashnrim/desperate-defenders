@@ -345,6 +345,20 @@ def show_stats():
     print(stats)
 
 
+def enhance_enemies():
+    """Enhances the enemies in the field and increases the danger level
+    by one."""
+    print("The evil grows!")
+    for row in field:
+        for cell in row:
+            if cell != {} and cell["type"] == "enemy":
+                for stat in ["min_damage", "max_damage", "reward"]:
+                    cell[stat] += 1
+    for enemy in CHARACTERS["enemy"]:
+        enemy["health"] += 1
+    game_variables["danger_level"] += 1
+
+
 def progress_game(previous_turn=0):
     """Begins all the processes needed to start or progress the game.
 
@@ -354,6 +368,9 @@ def progress_game(previous_turn=0):
     if game_variables["killed"] >= game_variables["target"]:
         print("You have protected the city! You win!")
         exit()
+
+    if game_variables["turn"] > 0 and game_variables["turn"] % 12 == 0:
+        enhance_enemies()
 
     spawn_enemy()
     draw_field()
