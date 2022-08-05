@@ -3,6 +3,7 @@
 # Arash Nur Iman (REDACTED, REDACTED)
 
 from datetime import datetime
+from typing import Union
 import json
 import random
 import re
@@ -13,6 +14,11 @@ def display_intro_menu():
     """Displays the menu to the user to start or restore a game."""
     for line in ["Desperate Defenders", "-" * 19, "Defend the city from undead monsters!", ""]:
         print(line)
+
+    # Prints a warning to the user if their terminal height or width may
+    # be too small to display the game properly.
+    # h: 21, w:
+
     for index, line in enumerate(["Start a new game", "Load saved game", "Quit"]):
         print("{}. {}".format(index + 1, line))
 
@@ -221,7 +227,7 @@ def spawn_enemy(override=False):
         spawn_entity(enemy, position)
 
 
-def get_position() -> tuple:
+def get_position() -> Union[tuple, None]:
     """Prompts the user for a position and re-prompts them until
     a valid position is provided.
 
@@ -230,12 +236,19 @@ def get_position() -> tuple:
     """
     while True:
         try:
-            position = input("Place where? ")
-            assert re.match(r"[A-Za-z]\d{1,2}", position)
+            position = input("Place where? Type X to cancel. ")
+            assert re.match(r"([A-Za-z]\d{1,2})|[Xx]", position)
+        except KeyboardInterrupt:
+            print()
+            break
         except AssertionError:
             print(
                 "Please provide the position in the format XY (X is an alphabet, Y is a numeral).", end=" ")
         else:
+            # Checks if the user cancelled the placement.
+            if position.lower() == "x":
+                return None
+
             # Checks if the provided row and col values are valid.
             row, col = position[0].upper(), int(position[1:])
             if ord(row) - 65 <= game_variables["rows"] and col - 1 <= game_variables["columns"] // 2:
@@ -262,6 +275,8 @@ def purchase_defense():
         if choice != len(defenses) + 1:
             if game_variables["gold"] - defenses[choice - 1]["cost"] >= 0:
                 position = get_position()
+                if position is None:
+                    break
                 if spawn_entity(defenses[choice - 1], position):
                     game_variables["gold"] -= defenses[choice - 1]["cost"]
                     game_variables["turn"] += 1
