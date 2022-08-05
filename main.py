@@ -2,14 +2,14 @@
 # Assignment
 # Arash Nur Iman (REDACTED, REDACTED)
 
+import json
+import os
+import random
+import re
 from datetime import datetime
 from math import inf
 from textwrap import wrap
 from typing import Union
-import json
-import random
-import re
-import os
 
 
 def display_intro_menu():
@@ -192,6 +192,143 @@ def show_game_settings():
 
     print()
     show_game_settings()
+
+####################
+# Game restoration and saving functions
+# All functions in this chunk handles the logic for saving and restoring
+# games.
+####################
+
+
+SAVE_GAME_FILE_NAME = "saved_game.dd"
+
+
+def load_game() -> bool:
+    """Attempts to restore a saved game.
+
+    Returns:
+        bool: True if the game has been restored successfully, False otherwise.
+    """
+    global game_variables, redundant_game_variables, field, redundant_field
+    if not(SAVE_GAME_FILE_NAME in os.listdir()):
+        print("No saved game found. If you have it stored somewhere else or named differently, move the file and rename it to \"saved_game.dd\" and try again.")
+        return False
+    else:
+        with open(SAVE_GAME_FILE_NAME, "r") as file:
+            data = file.readlines()
+            changed = []
+
+            # Restores the game variables.
+            variables_restored = True
+            stored_game_variables = data[5:data.index("\n", 5)]
+            for index, variable in enumerate(stored_game_variables):
+                try:
+                    key, value = variable.split(",")
+                    assert key in game_variables
+                except AssertionError:
+                    print("Error in line {} ({}): The key {} is not known to the game.".format(
+                        5 + index, variable.strip(), key))
+                    variables_restored = False
+                except ValueError:
+                    print("Error in line {} ({}): The game variables are not in the right format.".format(
+                        5 + index, variable.strip()))
+                    variables_restored = False
+                else:
+                    value = value.strip()
+                    game_variables[key] = int(
+                        value) if value.isdigit() else value
+            if variables_restored:
+                changed.append("Game variables")
+
+            # Restores the field.
+            field_restored = True
+            saved_field = data[data.index("# Field #\n") + 1:]
+            if len(saved_field) != game_variables["rows"]:
+                print(
+                    "Error in restoring field: The game-set number of rows does not match the saved number of rows.")
+                field_restored = False
+            else:
+                for r_index, row in enumerate(saved_field):
+                    row = row.strip().split(";")
+                    for c_index, cell in enumerate(row):
+                        cell_data = json.loads(cell)
+                        field[r_index][c_index] = cell_data
+            if field_restored:
+                changed.append("Field")
+
+            # Checks if the program has encountered any issue while
+            # restoring the game. If so, the program prompts the user
+            # to see if they'd like to start a new game; if so, the
+            # save file is renamed and a new game will begin. Otherwise,
+            # the program will end.
+            if len(changed) != 2:
+                print(
+                    "\n[!] Some data could not be restored. The game may be in an inconsistent state.")
+                print("The following have been fully restored, though:")
+                for change in changed:
+                    print("- {}".format(change))
+
+                confirm = input(
+                    "Start a new game? Your data will be preserved in a separate file for you to investigate. (y/N) ")
+                if confirm.lower() == "y":
+                    preserved_file_name = datetime.now().strftime("%Y%m%d-%H%M%S") + ".dd"
+                    with open(preserved_file_name, "w") as preserved_file:
+                        preserved_file.writelines(data)
+                    os.remove(SAVE_GAME_FILE_NAME)
+
+                    # Restores game_variables and field using the
+                    # redundant variable and recreating the field.
+                    game_variables = redundant_game_variables.copy()
+                    field = [[{}] * game_variables["columns"]
+                             for _ in range(game_variables["rows"])]
+                    return True
+                else:
+                    return False
+            else:
+                return True
+
+
+def save_game() -> bool:
+    """Saves the game to a file.
+
+    Returns:
+        bool: True if the game was saved successfully, False otherwise.
+    """
+    if SAVE_GAME_FILE_NAME in os.listdir():
+        confirm = input("A saved game already exists. Overwrite? (y/N): ")
+        if confirm.lower() != "y":
+            return False
+
+    with open(SAVE_GAME_FILE_NAME, "w") as file:
+        lines = []
+
+        # Writes the headers in the file to identify the file as a saved
+        # game.
+        lines.extend(["### DESPERATE DEFENDERS SAVE FILE ###",
+                     "\nThis file was created by the Desperate Defenders game. Do not change the ", "\nvalues in this file; otherwise, your game may change or be corrupted!"])
+
+        # Writes the game variables to the file.
+        lines.append("\n\n# Game variables #")
+        for key, value in game_variables.items():
+            lines.append("\n{},{}".format(key, value))
+
+        # Writes the field to the file.
+        lines.append("\n\n# Field #")
+        for row in field:
+            row_values = ""
+            for c_index, cell in enumerate(row):
+                # JSON is practically similar to Python's dictionary
+                # format (in this use case). Therefore, we can use the
+                # json package to handle reading and writing.
+                row_values += json.dumps(cell)
+                if c_index != len(row) - 1:
+                    row_values += ";"
+            lines.append("\n{}".format(row_values))
+
+        # Writes the lines to the file.
+        file.writelines(lines)
+        return True
+
 
 ####################
 # Game functions
@@ -532,142 +669,6 @@ def progress_game(previous_turn=0):
             game_variables["threat_level"] -= 10
 
     progress_game(game_variables["turn"])
-
-
-####################
-# Game restoration and saving functions
-# All functions in this chunk handles the logic for saving and restoring
-# games.
-####################
-
-SAVE_GAME_FILE_NAME = "saved_game.dd"
-
-
-def load_game() -> bool:
-    """Attempts to restore a saved game.
-
-    Returns:
-        bool: True if the game has been restored successfully, False otherwise.
-    """
-    global game_variables, redundant_game_variables, field, redundant_field
-    if not(SAVE_GAME_FILE_NAME in os.listdir()):
-        print("No saved game found. If you have it stored somewhere else or named differently, move the file and rename it to \"saved_game.dd\" and try again.")
-        return False
-    else:
-        with open(SAVE_GAME_FILE_NAME, "r") as file:
-            data = file.readlines()
-            changed = []
-
-            # Restores the game variables.
-            variables_restored = True
-            stored_game_variables = data[5:data.index("\n", 5)]
-            for index, variable in enumerate(stored_game_variables):
-                try:
-                    key, value = variable.split(",")
-                    assert key in game_variables
-                except AssertionError:
-                    print("Error in line {} ({}): The key {} is not known to the game.".format(
-                        5 + index, variable.strip(), key))
-                    variables_restored = False
-                except ValueError:
-                    print("Error in line {} ({}): The game variables are not in the right format.".format(
-                        5 + index, variable.strip()))
-                    variables_restored = False
-                else:
-                    value = value.strip()
-                    game_variables[key] = int(
-                        value) if value.isdigit() else value
-            if variables_restored:
-                changed.append("Game variables")
-
-            # Restores the field.
-            field_restored = True
-            saved_field = data[data.index("# Field #\n") + 1:]
-            if len(saved_field) != game_variables["rows"]:
-                print(
-                    "Error in restoring field: The game-set number of rows does not match the saved number of rows.")
-                field_restored = False
-            else:
-                for r_index, row in enumerate(saved_field):
-                    row = row.strip().split(";")
-                    for c_index, cell in enumerate(row):
-                        cell_data = json.loads(cell)
-                        field[r_index][c_index] = cell_data
-            if field_restored:
-                changed.append("Field")
-
-            # Checks if the program has encountered any issue while
-            # restoring the game. If so, the program prompts the user
-            # to see if they'd like to start a new game; if so, the
-            # save file is renamed and a new game will begin. Otherwise,
-            # the program will end.
-            if len(changed) != 2:
-                print(
-                    "\n[!] Some data could not be restored. The game may be in an inconsistent state.")
-                print("The following have been fully restored, though:")
-                for change in changed:
-                    print("- {}".format(change))
-
-                confirm = input(
-                    "Start a new game? Your data will be preserved in a separate file for you to investigate. (y/N) ")
-                if confirm.lower() == "y":
-                    preserved_file_name = datetime.now().strftime("%Y%m%d-%H%M%S") + ".dd"
-                    with open(preserved_file_name, "w") as preserved_file:
-                        preserved_file.writelines(data)
-                    os.remove(SAVE_GAME_FILE_NAME)
-
-                    # Restores game_variables and field using the
-                    # redundant variable and recreating the field.
-                    game_variables = redundant_game_variables.copy()
-                    field = [[{}] * game_variables["columns"]
-                             for _ in range(game_variables["rows"])]
-                    return True
-                else:
-                    return False
-            else:
-                return True
-
-
-def save_game() -> bool:
-    """Saves the game to a file.
-
-    Returns:
-        bool: True if the game was saved successfully, False otherwise.
-    """
-    if SAVE_GAME_FILE_NAME in os.listdir():
-        confirm = input("A saved game already exists. Overwrite? (y/N): ")
-        if confirm.lower() != "y":
-            return False
-
-    with open(SAVE_GAME_FILE_NAME, "w") as file:
-        lines = []
-
-        # Writes the headers in the file to identify the file as a saved
-        # game.
-        lines.extend(["### DESPERATE DEFENDERS SAVE FILE ###",
-                     "\nThis file was created by the Desperate Defenders game. Do not change the ", "\nvalues in this file; otherwise, your game may change or be corrupted!"])
-
-        # Writes the game variables to the file.
-        lines.append("\n\n# Game variables #")
-        for key, value in game_variables.items():
-            lines.append("\n{},{}".format(key, value))
-
-        # Writes the field to the file.
-        lines.append("\n\n# Field #")
-        for row in field:
-            row_values = ""
-            for c_index, cell in enumerate(row):
-                # JSON is practically similar to Python's dictionary
-                # format (in this use case). Therefore, we can use the
-                # json package to handle reading and writing.
-                row_values += json.dumps(cell)
-                if c_index != len(row) - 1:
-                    row_values += ";"
-            lines.append("\n{}".format(row_values))
-
-        # Writes the lines to the file.
-        file.writelines(lines)
-        return True
 
 
 ####################
