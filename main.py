@@ -19,7 +19,13 @@ def display_intro_menu():
 
     # Prints a warning to the user if their terminal height or width may
     # be too small to display the game properly.
-    # h: 21, w:
+    columns, lines = os.get_terminal_size()
+    if lines < 21:
+        print("Your terminal height may be too small to display the game properly. Please adjust your terminal size for the best experience!")
+    if columns < 80:
+        print("Your terminal width may be too small to display the game properly. Please adjust your terminal size for the best experience!")
+    if lines < 21 or columns < 80:
+        print()
 
     for index, line in enumerate(["Start a new game", "Load saved game", "Manage game variables", "Quit"]):
         print("{}. {}".format(index + 1, line))
