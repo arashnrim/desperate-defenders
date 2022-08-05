@@ -408,7 +408,11 @@ def spawn_entity(entity: dict, position: tuple) -> bool:
         bool: True if the entity was spawned, False if not.
     """
     placed_entity = entity.copy()
-    placed_entity["type"] = "enemy" if placed_entity in CHARACTERS["enemy"] != -1 else "player"
+    if placed_entity in CHARACTERS["enemy"]:
+        placed_entity["type"] = "enemy"
+    elif placed_entity in CHARACTERS["player"]:
+        placed_entity["type"] = "player"
+        placed_entity["upgrade_count"] = 0
     placed_entity["current_health"] = placed_entity["health"]
 
     # Checks if the entity can be spawned in the given position.
@@ -439,16 +443,20 @@ def spawn_enemy(override=False):
         spawn_entity(enemy, position)
 
 
-def get_position() -> Union[tuple, None]:
+def get_position(message="Place where?") -> Union[tuple, None]:
     """Prompts the user for a position and re-prompts them until
     a valid position is provided.
+
+    Parameters:
+        message (str): The message to display to the player. The message
+        should be whitespace-stripped (no trailing whitespaces).
 
     Returns:
         tuple: The user-provided position, comprised of (row, col).
     """
     while True:
         try:
-            position = input("Place where? Type X to cancel. ")
+            position = input("{} Type X to cancel. ".format(message))
             assert re.match(r"([A-Za-z]\d{1,2})|[Xx]", position)
         except KeyboardInterrupt:
             print()
@@ -632,6 +640,60 @@ def enhance_enemies():
     game_variables["danger_level"] += 1
 
 
+def enhance_defense():
+    """Enhances the selected defense in the field. The enhancement can
+    only be applied to archers and walls, and enhancements to both are
+    as follows:
+    - Archers: min_damage + 1, max_damage + 1, health + 1
+    - Walls: health + 5
+
+    It is assumed that, as with enemies being advanced, enhancing
+    defense does not advance the game by a turn.
+    """
+    position = get_position("Upgrade which cell?")
+    if position is None:
+        return
+
+    # Checks if the entity at the given position is a valid entity.
+    row, col = position
+    entity = field[row][col]
+    message = ""
+    if entity == {}:
+        message = "There is no entity in lane {}, column {}!"
+    elif entity["type"] == "enemy":
+        message = "The entity in lane {}, column {} is an enemy!"
+    elif entity["id"] not in ["ARCHR", "WALL"]:
+        message = "The entity in lane {}, column {} is not an archer or a wall! It cannot be upgraded."
+
+    if message != "":
+        print(message.format(chr(65 + row), col + 1))
+    else:
+        stats = []
+        value = 0
+        if entity["id"] == "ARCHR":
+            if game_variables["gold"] < 8 + 2 * entity["upgrade_count"]:
+                print("You do not have enough gold to upgrade this archer!")
+                return
+
+            stats = ["min_damage", "max_damage", "current_health", "health"]
+            value = 1
+            game_variables["gold"] -= 8 + 2 * entity["upgrade_count"]
+        elif entity["id"] == "WALL":
+            if game_variables["gold"] < 6 + 2 * entity["upgrade_count"]:
+                print("You do not have enough gold to upgrade this wall!")
+                return
+
+            stats = ["current_health", "health"]
+            value = 5
+            game_variables["gold"] -= 6 + 2 * entity["upgrade_count"]
+
+        for stat in stats:
+            entity[stat] += value
+
+        print("{} in lane {}, column {} upgraded!".format(
+            entity["name"], chr(65 + row), col + 1))
+
+
 def progress_game(previous_turn=0):
     """Begins all the processes needed to start or progress the game.
 
@@ -650,19 +712,22 @@ def progress_game(previous_turn=0):
     show_stats()
 
     # Gives the player their choices.
-    print("1. Buy unit" + " " * 5 + "2. End turn")
-    print("3. Save game" + " " * 4 + "4. Quit")
-    choice = get_choice(4)
+    print("1. Buy unit" + " " * 5 + "2. Upgrade unit")
+    print("3. End turn" + " " * 5 + "4. Save game")
+    print("5. Quit")
+    choice = get_choice(5)
 
     if choice == 1:
         purchase_defense()
     elif choice == 2:
-        game_variables["turn"] += 1
+        enhance_defense()
     elif choice == 3:
+        game_variables["turn"] += 1
+    elif choice == 4:
         saved = save_game()
         if saved:
             print("\nGame saved!")
-    elif choice == 4:
+    elif choice == 5:
         print("\nSee you next time!")
         exit()
 
