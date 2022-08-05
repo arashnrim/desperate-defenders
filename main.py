@@ -606,8 +606,8 @@ if __name__ == "__main__":
     elif choice == 2:
         loaded = load_game()
         if loaded:
-            print("")
-            progress_game()
+            print()
+            progress_game(previous_turn=game_variables["turn"])
     elif choice == 3:
         exit()
 else:
