@@ -140,8 +140,9 @@ field = [[{}] * game_variables["columns"]
 ####################
 
 
-def show_game_settings():
-    """Displays the menu with the game settings."""
+def manage_game_settings():
+    """Displays the menu with the game settings, and allows the player
+    to alter the game settings."""
     global field
 
     for line in ["Game settings", "-" * 19]:
@@ -158,7 +159,7 @@ def show_game_settings():
     variables = ["columns", "rows", "threat_level",
                  "danger_level", "target", "gold"]
     for index, variable in enumerate(variables):
-        print("\n{}. {:<72} {} {}".format(index + 1, pretty_titles[index], game_variables[variable],
+        print("\n{}. {:<69} {} {}".format(index + 1, pretty_titles[index], game_variables[variable],
               "" if game_variables[variable] == redundant_game_variables[variable] else "[{}]".format(redundant_game_variables[variable])))
         for wrapped_line in wrap(pretty_descriptions[index], width=72):
             print(wrapped_line)
@@ -197,7 +198,7 @@ def show_game_settings():
             break
 
     print()
-    show_game_settings()
+    manage_game_settings()
 
 ####################
 # Game restoration and saving functions
@@ -695,7 +696,7 @@ if __name__ == "__main__":
                 print()
                 progress_game(previous_turn=game_variables["turn"])
         elif choice == 3:
-            show_game_settings()
+            manage_game_settings()
         elif choice == 4:
             exit()
 else:
