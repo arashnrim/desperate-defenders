@@ -3,6 +3,8 @@
 # Arash Nur Iman (REDACTED, REDACTED)
 
 from datetime import datetime
+from math import inf
+from textwrap import wrap
 from typing import Union
 import json
 import random
@@ -19,11 +21,11 @@ def display_intro_menu():
     # be too small to display the game properly.
     # h: 21, w:
 
-    for index, line in enumerate(["Start a new game", "Load saved game", "Quit"]):
+    for index, line in enumerate(["Start a new game", "Load saved game", "Manage game variables", "Quit"]):
         print("{}. {}".format(index + 1, line))
 
 
-def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice should be numeric.") -> int:
+def get_choice(upper_bound: int, message="Your choice? ", lower_bound=1, val_error_message="Your choice should be numeric.") -> int:
     """Prompts the user for a numeric choice and re-prompts them until
     a valid choice is provided.
 
@@ -37,7 +39,7 @@ def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice s
     """
     while True:
         try:
-            choice = int(input("Your choice? "))
+            choice = int(input(message))
             assert lower_bound <= choice <= upper_bound
         except ValueError:
             print(val_error_message, end=" ")
@@ -47,11 +49,6 @@ def get_choice(upper_bound: int, lower_bound=1, val_error_message="Your choice s
         else:
             return choice
 
-
-####################
-# Game functions
-# All functions in this chunk handles the logic for executing the game.
-####################
 
 CHARACTERS = {
     "player": [
@@ -129,6 +126,77 @@ redundant_game_variables = game_variables.copy()
 # enemy)
 field = [[{}] * game_variables["columns"]
          for _ in range(game_variables["rows"])]
+
+####################
+# Settings functions
+# All functions in this chunk handles the logic for displaying and editing
+# the game settings.
+####################
+
+
+def show_game_settings():
+    """Displays the menu with the game settings."""
+    global field
+
+    for line in ["Game settings", "-" * 19]:
+        print(line)
+
+    pretty_titles = ["Columns", "Rows", "Initial threat level",
+                     "Initial danger level", "Target", "Initial gold"]
+    pretty_descriptions = ["The number of columns in the game.",
+                           "The number of rows in the game.",
+                           "The initial threat level. Only values between 1 and 10 are valid, and a value of 10 will automatically spawn another enemy when the game begins.", "The initial danger level. This affects how fast the threat level fills up; the higher the danger level, the higher possibility of the threat level filling up faster.",
+                           "The number of monsters to defeat to consider a win.",
+                           "The amount of gold the game starts with."
+                           ]
+    variables = ["columns", "rows", "threat_level",
+                 "danger_level", "target", "gold"]
+    for index, variable in enumerate(variables):
+        print("\n{}. {:<72} {} {}".format(index + 1, pretty_titles[index], game_variables[variable],
+              "" if game_variables[variable] == redundant_game_variables[variable] else "[{}]".format(redundant_game_variables[variable])))
+        for wrapped_line in wrap(pretty_descriptions[index], width=72):
+            print(wrapped_line)
+    print("\n{}. Back to main menu".format(len(variables) + 1))
+
+    # Declares the restrictions values can have; used together with the
+    # for loop below to replace repetitive lines of if-elifs.
+    restrictions = [None, None, (1, 10), (1, 10), None, None]
+
+    choice = get_choice(len(variables) + 1)
+    if choice == len(variables) + 1:
+        return
+
+    # Technically a replacement for an if-elif statement spanning all
+    # the cases. This is to save a little more space (if-elifs
+    # continuously don't look that good) and also make the program
+    # adaptable (if more variables are added in the future, the program
+    # cater to them).
+    for index in range(len(variables)):
+        if choice == index + 1:
+            print("\nNow changing {}; current value is {}.".format(
+                pretty_titles[index].lower(), game_variables[variables[index]]))
+            if restrictions[index] is None:
+                game_variables[variables[index]] = get_choice(
+                    inf, message="What value would you like to give this variable? ")
+
+                # Handles special cases where the field needs to be
+                # redeclared if the columns (index 0) or rows (index 1)
+                # are changed.
+                if index == 0 or index == 1:
+                    field = [[{}] * game_variables["columns"]
+                             for _ in range(game_variables["rows"])]
+            else:
+                game_variables[variables[index]] = get_choice(
+                    restrictions[index][1], lower_bound=restrictions[index][0], message="What value would you like to give this variable? ")
+            break
+
+    print()
+    show_game_settings()
+
+####################
+# Game functions
+# All functions in this chunk handles the logic for executing the game.
+####################
 
 
 def end_game(catalyst_entity: dict):
@@ -608,17 +676,20 @@ def save_game() -> bool:
 ####################
 
 if __name__ == "__main__":
-    display_intro_menu()
-    choice = get_choice(3)
+    while True:
+        display_intro_menu()
+        choice = get_choice(4)
 
-    if choice == 1:
-        progress_game()
-    elif choice == 2:
-        loaded = load_game()
-        if loaded:
-            print()
-            progress_game(previous_turn=game_variables["turn"])
-    elif choice == 3:
-        exit()
+        if choice == 1:
+            progress_game()
+        elif choice == 2:
+            loaded = load_game()
+            if loaded:
+                print()
+                progress_game(previous_turn=game_variables["turn"])
+        elif choice == 3:
+            show_game_settings()
+        elif choice == 4:
+            exit()
 else:
     print("This file is not meant to be imported. Please run this file with `python3`.")
