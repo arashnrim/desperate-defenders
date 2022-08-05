@@ -31,14 +31,15 @@ def display_intro_menu():
         print("{}. {}".format(index + 1, line))
 
 
-def get_choice(upper_bound: int, message="Your choice? ", lower_bound=1, val_error_message="Your choice should be numeric.") -> int:
+def get_choice(upper_bound: int, lower_bound=1, message="Your choice? ", val_error_message="Your choice should be numeric.") -> int:
     """Prompts the user for a numeric choice and re-prompts them until
     a valid choice is provided.
 
     Parameters:
         upper_bound (int): The upper bound of the range of valid choices.
         lower_bound (int): The lower bound of the range of valid choices.
-        val_error_message (str): The message to display if the user's choice is not valid (returns a ValueError).
+        message (str): The message to display to the player.
+        val_error_message (str): The message to display if the player's choice is not valid (returns a ValueError).
 
     Returns:
         int: The user's choice.
@@ -528,11 +529,11 @@ def advance_entities():
                             entity["min_damage"], entity["max_damage"])
                         entity_ahead["current_health"] -= damage
 
-                        print("{} in lane {} shoots {} for {} damage!".format(
+                        print("[>] {} in lane {} shoots {} for {} damage!".format(
                             entity["name"], chr(65 + r_index), entity_ahead["name"], damage))
 
                         if entity_ahead["current_health"] <= 0:
-                            print("{} dies!".format(entity_ahead["name"]))
+                            print("[>] {} dies!".format(entity_ahead["name"]))
                             game_variables["gold"] += entity_ahead["reward"]
                             game_variables["killed"] += 1
                             game_variables["threat_level"] += entity_ahead["reward"]
@@ -564,31 +565,31 @@ def advance_entities():
                     if ahead_cell != {} and ahead_cell["type"] == "player":
                         ahead_cell["current_health"] -= damage
 
-                        print("{} in lane {} bites {} for {} damage!".format(
+                        print("[<] {} in lane {} bites {} for {} damage!".format(
                             entity["name"], chr(65 + r_index), ahead_cell["name"], damage))
 
                         if ahead_cell["current_health"] <= 0:
-                            print("{} dies!".format(ahead_cell["name"]))
+                            print("[<] {} dies!".format(ahead_cell["name"]))
                             field[r_index][c_index - 1] = entity
-                            print("{} advances!".format(entity["name"]))
+                            print("[<] {} advances!".format(entity["name"]))
                             field[r_index][c_index] = {}
                     # Checks if the cell the enemy wishes to occupy is
                     # empty; if not, there is another entity in the way.
                     elif future_cell != {}:
                         future_cell["current_health"] -= damage
 
-                        print("{} in lane {} bites {} for {} damage!".format(
+                        print("[<] {} in lane {} bites {} for {} damage!".format(
                             entity["name"], chr(65 + r_index), future_cell["name"], damage))
 
                         # TODO: Is there a way to merge the two below? They do the same thing!
                         if future_cell["current_health"] <= 0:
-                            print("{} dies!".format(future_cell["name"]))
+                            print("[<] {} dies!".format(future_cell["name"]))
                             field[r_index][resulting_col] = entity
-                            print("{} advances!".format(entity["name"]))
+                            print("[<] {} advances!".format(entity["name"]))
                             field[r_index][c_index] = {}
                     else:
                         field[r_index][resulting_col] = entity
-                        print("{} advances!".format(entity["name"]))
+                        print("[<] {} advances!".format(entity["name"]))
                         field[r_index][c_index] = {}
 
 
