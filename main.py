@@ -388,7 +388,12 @@ def show_stats():
 
 def enhance_enemies():
     """Enhances the enemies in the field and increases the danger level
-    by one."""
+    by one.
+
+    The enhancement to health only affects future enemies; current
+    enemies on the field are not affected when an enhancement takes
+    place.
+    """
     print("The evil grows!")
     for row in field:
         for cell in row:
@@ -454,23 +459,6 @@ def progress_game(previous_turn=0):
 
 SAVE_GAME_FILE_NAME = "saved_game.dd"
 
-# def get_file_name() -> str:
-#     """Prompts the user for a string to a valid file name and re-prompts
-#     them until a valid file name (that exists) is provided.
-
-#     Returns:
-#         str: A valid file name.
-#     """
-#     while True:
-#         file_name = input("Enter the file name of your saved game: ")
-#         if re.match(r"^[a-zA-Z0-9_]+$", file_name):
-#             if file_name in os.listdir():
-#                 return file_name
-#             else:
-#                 print("The saved game does not exist. Try again.", end=" ")
-#         else:
-#             print("The name of the file should only contain letters, numbers, and underscores. Try again.", end=" ")
-
 
 def load_game() -> bool:
     """Attempts to restore a saved game.
@@ -525,6 +513,11 @@ def load_game() -> bool:
             if field_restored:
                 changed.append("Field")
 
+            # Checks if the program has encountered any issue while
+            # restoring the game. If so, the program prompts the user
+            # to see if they'd like to start a new game; if so, the
+            # save file is renamed and a new game will begin. Otherwise,
+            # the program will end.
             if len(changed) != 2:
                 print(
                     "\n[!] Some data could not be restored. The game may be in an inconsistent state.")
@@ -540,6 +533,8 @@ def load_game() -> bool:
                         preserved_file.writelines(data)
                     os.remove(SAVE_GAME_FILE_NAME)
 
+                    # Restores game_variables and field using the
+                    # redundant variable and recreating the field.
                     game_variables = redundant_game_variables.copy()
                     field = [[{}] * game_variables["columns"]
                              for _ in range(game_variables["rows"])]
@@ -591,11 +586,11 @@ def save_game() -> bool:
         file.writelines(lines)
         return True
 
+
 ####################
 # Execution point
 # The game begins here.
 ####################
-
 
 if __name__ == "__main__":
     display_intro_menu()
