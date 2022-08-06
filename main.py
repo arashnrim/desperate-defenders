@@ -361,16 +361,24 @@ def save_game() -> bool:
 ####################
 
 
-def end_game(catalyst_entity: dict):
-    """Ends the game and gives the player guilt. Seriously, how could
-    they let this happen?
+def end_game(type: str, catalyst_entity=None):
+    """Ends the game in different ways, depending on the given type
+    (expecting either a type value of \"win\" or \"loss\").
+
+    Depending on the given type, this function handles the printing of
+    the required text and ends the program.
 
     Parameters:
-        catalyst_entity (dict): The entity that caused the end of the game.
+        type (str): The type of end game to perform.
+        catalyst_entity (dict): The entity that caused the end of the
+        game. Expected only if type is \"loss\".
     """
-    print("A {} has reached the city! All is lost!".format(
-        catalyst_entity["name"]))
-    print("You have lost the game. :(")
+    if type == "win":
+        print("You have protected the city! You win!")
+    elif type == "loss":
+        print("A {} has reached the city! All is lost!".format(
+            catalyst_entity["name"]))
+        print("You have lost the game. :(")
     exit()
 
 
@@ -416,7 +424,12 @@ def draw_field():
 
 
 def spawn_entity(entity: dict, position: tuple) -> bool:
-    """Spawns a given entity in the last column in a random row.
+    """Spawns a provided entity at the provided position.
+
+    This function also handles the logic validating if a placement is
+    possible; if not (such as when an entity is in the way, or some
+    other problem that would forbid the placement of the entity), this
+    function handles that by returning False. Otherwise, it returns True.
 
     Parameters:
         entity (dict): The entity to spawn.
@@ -442,8 +455,13 @@ def spawn_entity(entity: dict, position: tuple) -> bool:
 
 
 def spawn_enemy(override=False):
-    """Spawns a random enemy in any row of the last column.
-    Depends on spawn_entity().
+    """Spawns a random enemy in any row of the last column. Depends on
+    spawn_entity().
+
+    By default, an enemy will only be spawned when there are no more
+    enemies on the board. In some special cases though, like when the
+    threat level surpases the limit, an override can be used to spawn
+    the enemy regardless of the state of the field.
 
     Parameters:
         override (bool): If True, spawns an enemy in the last column of
@@ -475,25 +493,26 @@ def get_position(message="Place where?") -> Union[tuple, None]:
     while True:
         try:
             position = input("{} Type X to cancel. ".format(message))
-            assert re.match(r"([A-Za-z]\d{1,2})|[Xx]", position)
+            assert re.match(
+                r"([A-Za-z]\d{1,2})|[Xx]", position), "Please provide the position in the format XY (where X is an alphabet, Y is a numeral)."
+
+            # Checks if the provided row and col values are valid.
+            row, col = position[0].upper(), int(position[1:])
+            assert 0 <= ord(row) - 65 <= game_variables["rows"] - 1, "Please provide a valid row between A and {}.".format(
+                chr(65 + game_variables["rows"]))
+            assert col - 1 <= game_variables["columns"] // 2, "Please provide a valid column between 1 and {}.".format(
+                game_variables["columns"] // 2)
         except KeyboardInterrupt:
             print()
             break
-        except AssertionError:
-            print(
-                "Please provide the position in the format XY (X is an alphabet, Y is a numeral).", end=" ")
+        except AssertionError as error:
+            print(error, end=" ")
         else:
             # Checks if the user cancelled the placement.
             if position.lower() == "x":
                 return None
 
-            # Checks if the provided row and col values are valid.
-            row, col = position[0].upper(), int(position[1:])
-            if ord(row) - 65 <= game_variables["rows"] and col - 1 <= game_variables["columns"] // 2:
-                return ord(row) - 65, col - 1
-            else:
-                # TODO: Make less ambiguous statements
-                print("Please provide a valid position.", end=" ")
+            return ord(row) - 65, col - 1
 
 
 def purchase_defense():
@@ -588,7 +607,7 @@ def advance_entities():
                         break
 
                 if resulting_col < 0 and no_defense:
-                    end_game(entity)
+                    end_game("loss", catalyst_entity=entity)
                 else:
                     damage = random.randint(
                         entity["min_damage"], entity["max_damage"])
@@ -736,8 +755,7 @@ def progress_game(previous_turn=0):
         previous_turn (int): The turn number of the previous game."""
     # Checks if the conditions are met to warrant a win.
     if game_variables["killed"] >= game_variables["target"]:
-        print("You have protected the city! You win!")
-        exit()
+        end_game("win")
 
     if game_variables["turn"] > 0 and game_variables["turn"] % 12 == 0:
         enhance_enemies()
