@@ -74,6 +74,14 @@ CHARACTERS = {
             "min_damage": 0,
             "max_damage": 0,
             "cost": 3
+        },
+        {
+            "id": "CANON",
+            "name": "Cannon",
+            "health": 8,
+            "min_damage": 3,
+            "max_damage": 5,
+            "cost": 7
         }
     ],
     "enemy": [
@@ -517,14 +525,17 @@ def advance_entities():
         for c_index in range(game_variables["columns"]):
             entity = field[r_index][c_index]
 
-            # Activates the archers; the code below performs the
-            # attacking in a way that is expected of the archers.
-            if entity != {} and entity["id"] == "ARCHR":
+            # Activates the archers and cannons; the code below
+            # performs the attacking in a way that is expected of the
+            # entities.
+            if entity != {} and entity["id"] in ["ARCHR", "CANON"]:
                 for ahead_col in range(c_index + 1, game_variables["columns"]):
                     # Checks the first entity that lies in front of the
-                    # archer that is an enemy, and deals damage to it.
+                    # archer or cannon that is an enemy, and deals
+                    # damage to it. Additional checks are done to also
+                    # check if the turn is even (for the cannon).
                     entity_ahead = field[r_index][ahead_col]
-                    if entity_ahead != {} and entity_ahead["type"] == "enemy":
+                    if (entity["id"] == "ARCHR" or (entity["id"] == "CANON" and game_variables["turn"]) % 2) and (entity_ahead != {} and entity_ahead["type"] == "enemy"):
                         damage = random.randint(
                             entity["min_damage"], entity["max_damage"])
                         entity_ahead["current_health"] -= damage
@@ -538,6 +549,16 @@ def advance_entities():
                             game_variables["killed"] += 1
                             game_variables["threat_level"] += entity_ahead["reward"]
                             field[r_index][ahead_col] = {}
+                        elif entity["id"] == "CANON" and ahead_col + 1 < len(field[r_index]):
+                            # Checks if the entity can be moved back by
+                            # a cell. If a random choice is true, the
+                            # entity may be moved back.
+                            if field[r_index][ahead_col + 1] == {} and random.choice([True, False]):
+                                field[r_index][ahead_col + 1] = entity_ahead
+                                field[r_index][ahead_col] = {}
+                                print("[>] {} was blasted back by the cannon!".format(
+                                    entity_ahead["name"]))
+                                break
                         break
 
             # Advances the enemies; the code below advances the enemies
