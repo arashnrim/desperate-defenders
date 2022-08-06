@@ -5,7 +5,6 @@
 import json
 import os
 import random
-import re
 from datetime import datetime
 from math import inf
 from textwrap import wrap
@@ -382,6 +381,42 @@ def end_game(type: str, catalyst_entity=None):
     exit()
 
 
+def get_position(message="Place where?") -> Union[tuple, None]:
+    """Prompts the user for a position and re-prompts them until
+    a valid position is provided.
+
+    Parameters:
+        message (str): The message to display to the player. The message
+        should be whitespace-stripped (no trailing whitespaces).
+
+    Returns:
+        tuple: The user-provided position, comprised of (row, col).
+    """
+    while True:
+        try:
+            position = input("{} Type X to cancel. ".format(message))
+            assert re.match(
+                r"([A-Za-z]\d{1,2})|[Xx]", position), "Please provide the position in the format XY (where X is an alphabet, Y is a numeral)."
+
+            # Checks if the provided row and col values are valid.
+            row, col = position[0].upper(), int(position[1:])
+            assert 0 <= ord(row) - 65 <= game_variables["rows"] - 1, "Please provide a valid row between A and {}.".format(
+                chr(65 + game_variables["rows"]))
+            assert col - 1 <= game_variables["columns"] // 2, "Please provide a valid column between 1 and {}.".format(
+                game_variables["columns"] // 2)
+        except KeyboardInterrupt:
+            print()
+            break
+        except AssertionError as error:
+            print(error, end=" ")
+        else:
+            # Checks if the user cancelled the placement.
+            if position.lower() == "x":
+                return None
+
+            return ord(row) - 65, col - 1
+
+
 def draw_field():
     """Prints the field in a player-friendly format."""
     print(" ", end="")
@@ -477,42 +512,6 @@ def spawn_enemy(override=False):
         position = (random.randint(
             0, game_variables["rows"] - 1), game_variables["columns"] - 1)
         spawn_entity(enemy, position)
-
-
-def get_position(message="Place where?") -> Union[tuple, None]:
-    """Prompts the user for a position and re-prompts them until
-    a valid position is provided.
-
-    Parameters:
-        message (str): The message to display to the player. The message
-        should be whitespace-stripped (no trailing whitespaces).
-
-    Returns:
-        tuple: The user-provided position, comprised of (row, col).
-    """
-    while True:
-        try:
-            position = input("{} Type X to cancel. ".format(message))
-            assert re.match(
-                r"([A-Za-z]\d{1,2})|[Xx]", position), "Please provide the position in the format XY (where X is an alphabet, Y is a numeral)."
-
-            # Checks if the provided row and col values are valid.
-            row, col = position[0].upper(), int(position[1:])
-            assert 0 <= ord(row) - 65 <= game_variables["rows"] - 1, "Please provide a valid row between A and {}.".format(
-                chr(65 + game_variables["rows"]))
-            assert col - 1 <= game_variables["columns"] // 2, "Please provide a valid column between 1 and {}.".format(
-                game_variables["columns"] // 2)
-        except KeyboardInterrupt:
-            print()
-            break
-        except AssertionError as error:
-            print(error, end=" ")
-        else:
-            # Checks if the user cancelled the placement.
-            if position.lower() == "x":
-                return None
-
-            return ord(row) - 65, col - 1
 
 
 def purchase_defense():
