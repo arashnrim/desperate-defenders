@@ -102,7 +102,16 @@ CHARACTERS = {
             "max_damage": 4,
             "moves": 2,
             "reward": 3
-        }
+        },
+        {
+            "id": "SKELE",
+            "name": "Skeleton",
+            "health": 10,
+            "min_damage": 1,
+            "max_damage": 3,
+            "moves": 1,
+            "reward": 3
+        },
     ]
 }
 
@@ -525,19 +534,23 @@ def advance_entities():
         for c_index in range(game_variables["columns"]):
             entity = field[r_index][c_index]
 
-            # Activates the archers and cannons; the code below
-            # performs the attacking in a way that is expected of the
+            # Activates the defense entities; the code below performs
+            # the attacking in a way that is expected of the
             # entities.
             if entity != {} and entity["id"] in ["ARCHR", "CANON"]:
                 for ahead_col in range(c_index + 1, game_variables["columns"]):
                     # Checks the first entity that lies in front of the
-                    # archer or cannon that is an enemy, and deals
-                    # damage to it. Additional checks are done to also
-                    # check if the turn is even (for the cannon).
+                    # defense entity that is an enemy, and deals damage
+                    # to it. Additional checks are done to also check if
+                    # the turn is even (for the cannon).
                     entity_ahead = field[r_index][ahead_col]
-                    if (entity["id"] == "ARCHR" or (entity["id"] == "CANON" and game_variables["turn"]) % 2) and (entity_ahead != {} and entity_ahead["type"] == "enemy"):
+                    if (entity["id"] in ["ARCHR", "SKELE"] or (entity["id"] == "CANON" and game_variables["turn"]) % 2) and (entity_ahead != {} and entity_ahead["type"] == "enemy"):
                         damage = random.randint(
                             entity["min_damage"], entity["max_damage"])
+                        # Manages the additional case where skeletons
+                        # take half the damage from archers.
+                        if entity_ahead["id"] == "SKELE" and entity["id"] == "ARCHR":
+                            damage = damage // 2
                         entity_ahead["current_health"] -= damage
 
                         print("[>] {} in lane {} shoots {} for {} damage!".format(
