@@ -566,6 +566,8 @@ def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> li
     """Performs a circular impact area around a given position depending
     on the type of impact (expecting either a type of \"mine\" or \"heal\").
 
+    An assumption is made that healing enemies will take a turn.
+
     Parameters:
         position (tuple): The position to impact the area around.
         type (str): The type of impact to perform. Expects either \"mine\" or \"heal\".
@@ -583,6 +585,12 @@ def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> li
     if type == "mine":
         print("[<] Mine in lane {} was detonated by {}!"
               .format(chr(65 + row), field[row][col]["name"]))
+    elif type == "heal":
+        if game_variables["gold"] - 5 < 0:
+            print("You don't have enough goals to heal!")
+            return
+        game_variables["gold"] -= 5
+        game_variables["turn"] += 1
     for r_index in range(row - 1, row + 2):
         for c_index in range(col - 1, col + 2):
             if 0 <= r_index < game_variables["rows"] and 0 <= c_index < game_variables["columns"]:
@@ -594,6 +602,12 @@ def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> li
                     if entity_in_radius["current_health"] <= 0:
                         print("[>] {} dies!".format(entity_in_radius["name"]))
                         field[r_index][c_index] = {}
+                elif entity_in_radius != {} and entity_in_radius["type"] == "player" and type == "heal":
+                    print("[>] {} in lane {} was healed by 5 points!".format(
+                        entity_in_radius["name"], chr(65 + r_index)))
+                    entity_in_radius["current_health"] += 5
+                    if entity_in_radius["current_health"] > entity_in_radius["health"]:
+                        entity_in_radius["current_health"] = entity_in_radius["health"]
 
 
 def advance_entities():
@@ -820,21 +834,26 @@ def progress_game(previous_turn=0):
 
     # Gives the player their choices.
     print("1. Buy unit" + " " * 5 + "2. Upgrade unit")
-    print("3. End turn" + " " * 5 + "4. Save game")
-    print("5. Quit")
-    choice = get_choice(5)
+    print("3. Heal area" + " " * 4 + "4. End turn")
+    print("5. Save game" + " " * 4 + "6. Quit")
+    choice = get_choice(6)
 
     if choice == 1:
         purchase_defense()
     elif choice == 2:
         enhance_defense()
     elif choice == 3:
-        game_variables["turn"] += 1
+        position = get_position(
+            "Heal which area? All defenders in a 3-by-3 radius will be healed.")
+        if position is not None:
+            impact_area(position, "heal")
     elif choice == 4:
+        game_variables["turn"] += 1
+    elif choice == 5:
         saved = save_game()
         if saved:
             print("\nGame saved!")
-    elif choice == 5:
+    elif choice == 6:
         print("\nSee you next time!")
         exit()
 
