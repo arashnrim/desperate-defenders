@@ -1,6 +1,11 @@
 # Programming I
 # Assignment
-# Arash Nur Iman (REDACTED, REDACTED)
+# Last updated on 7 August 2022
+
+# Desperate Defenders is a tower defense game where the player defends
+# a city from undead monsters. Tasked with several defense entities to
+# fight against incoming waves of enemies, the player has to plan and
+# play the game strategically in order to win.
 
 import json
 import os
