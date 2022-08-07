@@ -5,6 +5,7 @@
 import json
 import os
 import random
+import re
 from datetime import datetime
 from math import inf
 from textwrap import wrap
@@ -272,6 +273,8 @@ def load_game() -> bool:
                     "Error in restoring field: The game-set number of rows does not match the saved number of rows.")
                 field_restored = False
             else:
+                field = [[{}] * game_variables["columns"]
+                         for _ in range(game_variables["rows"])]
                 for r_index, row in enumerate(saved_field):
                     row = row.strip().split(";")
                     for c_index, cell in enumerate(row):
@@ -402,7 +405,7 @@ def get_position(message="Place where?") -> Union[tuple, None]:
             row, col = position[0].upper(), int(position[1:])
             assert 0 <= ord(row) - 65 <= game_variables["rows"] - 1, "Please provide a valid row between A and {}.".format(
                 chr(65 + game_variables["rows"]))
-            assert col - 1 <= game_variables["columns"] // 2, "Please provide a valid column between 1 and {}.".format(
+            assert col <= game_variables["columns"] // 2, "Please provide a valid column between 1 and {}.".format(
                 game_variables["columns"] // 2)
         except KeyboardInterrupt:
             print()
