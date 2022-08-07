@@ -272,6 +272,10 @@ def load_game() -> bool:
                     print("Error in line {} ({}): The game variables are not in the right format.".format(
                         5 + index, variable.strip()))
                     variables_restored = False
+                except:
+                    print(
+                        "An irrecoverable error occurred while reading game variable data. For safety, the game will end.")
+                    return
                 else:
                     value = value.strip()
                     game_variables[key] = int(
@@ -280,22 +284,27 @@ def load_game() -> bool:
                 changed.append("Game variables")
 
             # Restores the field.
-            field_restored = True
-            saved_field = data[data.index("# Field #\n") + 1:]
-            if len(saved_field) != game_variables["rows"]:
+            try:
+                field_restored = True
+                saved_field = data[data.index("# Field #\n") + 1:]
+                if len(saved_field) != game_variables["rows"]:
+                    print(
+                        "Error in restoring field: The game-set number of rows does not match the saved number of rows.")
+                    field_restored = False
+                else:
+                    field = [[{}] * game_variables["columns"]
+                             for _ in range(game_variables["rows"])]
+                    for r_index, row in enumerate(saved_field):
+                        row = row.strip().split(";")
+                        for c_index, cell in enumerate(row):
+                            cell_data = json.loads(cell)
+                            field[r_index][c_index] = cell_data
+                if field_restored:
+                    changed.append("Field")
+            except:
                 print(
-                    "Error in restoring field: The game-set number of rows does not match the saved number of rows.")
-                field_restored = False
-            else:
-                field = [[{}] * game_variables["columns"]
-                         for _ in range(game_variables["rows"])]
-                for r_index, row in enumerate(saved_field):
-                    row = row.strip().split(";")
-                    for c_index, cell in enumerate(row):
-                        cell_data = json.loads(cell)
-                        field[r_index][c_index] = cell_data
-            if field_restored:
-                changed.append("Field")
+                    "An irrecoverable error occurred while reading the game field. For safety, the game will end.")
+                return
 
             # Checks if the program has encountered any issue while
             # restoring the game. If so, the program prompts the user
