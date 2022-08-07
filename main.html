@@ -79,7 +79,7 @@ Parameters:<br>
 &nbsp;<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;tuple:&nbsp;The&nbsp;user-provided&nbsp;position,&nbsp;comprised&nbsp;of&nbsp;(row,&nbsp;col).</tt></dd></dl>
- <dl><dt><a name="-impact_area"><strong>impact_area</strong></a>(position: tuple, type: str, catalyst_entity_position=None) -&gt; list</dt><dd><tt>Performs&nbsp;a&nbsp;circular&nbsp;impact&nbsp;area&nbsp;around&nbsp;a&nbsp;given&nbsp;position&nbsp;depending<br>
+ <dl><dt><a name="-impact_area"><strong>impact_area</strong></a>(position: tuple, type: str, catalyst_entity_position=None)</dt><dd><tt>Performs&nbsp;a&nbsp;circular&nbsp;impact&nbsp;area&nbsp;around&nbsp;a&nbsp;given&nbsp;position&nbsp;depending<br>
 on&nbsp;the&nbsp;type&nbsp;of&nbsp;impact&nbsp;(expecting&nbsp;either&nbsp;a&nbsp;type&nbsp;of&nbsp;"mine"&nbsp;or&nbsp;"heal").<br>
 &nbsp;<br>
 An&nbsp;assumption&nbsp;is&nbsp;made&nbsp;that&nbsp;healing&nbsp;defenses&nbsp;will&nbsp;take&nbsp;a&nbsp;turn.<br>
@@ -88,9 +88,7 @@ Parameters:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;position&nbsp;(tuple):&nbsp;The&nbsp;position&nbsp;to&nbsp;impact&nbsp;the&nbsp;area&nbsp;around.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;type&nbsp;(str):&nbsp;The&nbsp;type&nbsp;of&nbsp;impact&nbsp;to&nbsp;perform.&nbsp;Expects&nbsp;either&nbsp;"mine"&nbsp;or&nbsp;"heal".<br>
 &nbsp;&nbsp;&nbsp;&nbsp;catalyst_entity_position&nbsp;(tuple):&nbsp;The&nbsp;position&nbsp;of&nbsp;the&nbsp;entity<br>
-&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;caused&nbsp;the&nbsp;impact.<br>
-Returns:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;list:&nbsp;A&nbsp;list&nbsp;of&nbsp;all&nbsp;cells&nbsp;within&nbsp;the&nbsp;radius&nbsp;of&nbsp;the&nbsp;position.</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;caused&nbsp;the&nbsp;impact.</tt></dd></dl>
  <dl><dt><a name="-load_game"><strong>load_game</strong></a>() -&gt; bool</dt><dd><tt>Attempts&nbsp;to&nbsp;restore&nbsp;a&nbsp;saved&nbsp;game.<br>
 &nbsp;<br>
 Returns:<br>
