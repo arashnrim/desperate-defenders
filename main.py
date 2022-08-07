@@ -346,10 +346,10 @@ def save_game() -> bool:
         # Writes the headers in the file to identify the file as a saved
         # game.
         lines.extend(["### DESPERATE DEFENDERS SAVE FILE ###\n"] + [line + "\n" for line in wrap(
-            "This file was created by the desperate Defenders game. Do not change the values in this file; otherwise, your game may change or be corrupted!\n", width=72)])
+            "This file was created by the desperate Defenders game. Do not change the values in this file; otherwise, your game may change or be corrupted!", width=72)])
 
         # Writes the game variables to the file.
-        lines.append("\n\n# Game variables #")
+        lines.append("\n# Game variables #")
         for key, value in game_variables.items():
             lines.append("\n{},{}".format(key, value))
 
