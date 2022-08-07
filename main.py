@@ -1,5 +1,6 @@
 # Programming I
 # Assignment
+# Arash Nur Iman (***REMOVED***, ***REMOVED***)
 # Last updated on 7 August 2022
 
 # Desperate Defenders is a tower defense game where the player defends
