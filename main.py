@@ -576,7 +576,7 @@ def purchase_defense():
             break
 
 
-def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> list:
+def impact_area(position: tuple, type: str, catalyst_entity_position=None):
     """Performs a circular impact area around a given position depending
     on the type of impact (expecting either a type of \"mine\" or \"heal\").
 
@@ -587,8 +587,6 @@ def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> li
         type (str): The type of impact to perform. Expects either \"mine\" or \"heal\".
         catalyst_entity_position (tuple): The position of the entity
         that caused the impact.
-    Returns:
-        list: A list of all cells within the radius of the position.
     """
     row, col = position
     if catalyst_entity_position is not None:
