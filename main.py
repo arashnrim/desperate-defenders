@@ -619,39 +619,34 @@ def advance_entities():
                 else:
                     damage = random.randint(
                         entity["min_damage"], entity["max_damage"])
+                    entity_to_attack = None
 
                     # Checks if the cell in front of the enemy is occupied
                     # by a defence entity. If so, the enemy attacks that
                     # entity instead.
                     if ahead_cell != {} and ahead_cell["type"] == "player":
-                        ahead_cell["current_health"] -= damage
-
-                        print("[<] {} in lane {} bites {} for {} damage!".format(
-                            entity["name"], chr(65 + r_index), ahead_cell["name"], damage))
-
-                        if ahead_cell["current_health"] <= 0:
-                            print("[<] {} dies!".format(ahead_cell["name"]))
-                            field[r_index][c_index - 1] = entity
-                            print("[<] {} advances!".format(entity["name"]))
-                            field[r_index][c_index] = {}
+                        entity_to_attack = ahead_cell
                     # Checks if the cell the enemy wishes to occupy is
                     # empty; if not, there is another entity in the way.
                     elif future_cell != {}:
-                        future_cell["current_health"] -= damage
-
-                        print("[<] {} in lane {} bites {} for {} damage!".format(
-                            entity["name"], chr(65 + r_index), future_cell["name"], damage))
-
-                        # TODO: Is there a way to merge the two below? They do the same thing!
-                        if future_cell["current_health"] <= 0:
-                            print("[<] {} dies!".format(future_cell["name"]))
-                            field[r_index][resulting_col] = entity
-                            print("[<] {} advances!".format(entity["name"]))
-                            field[r_index][c_index] = {}
+                        entity_to_attack = future_cell
                     else:
                         field[r_index][resulting_col] = entity
                         print("[<] {} advances!".format(entity["name"]))
                         field[r_index][c_index] = {}
+
+                    if entity_to_attack is not None:
+                        entity_to_attack["current_health"] -= damage
+
+                        print("[<] {} in lane {} bites {} for {} damage!".format(
+                            entity["name"], chr(65 + r_index), entity_to_attack["name"], damage))
+
+                        if entity_to_attack["current_health"] <= 0:
+                            print("[<] {} dies!".format(
+                                entity_to_attack["name"]))
+                            field[r_index][resulting_col] = entity
+                            print("[<] {} advances!".format(entity["name"]))
+                            field[r_index][c_index] = {}
 
 
 def show_stats():
