@@ -550,14 +550,19 @@ def purchase_defense():
                 position = get_position()
                 if position is None:
                     break
+                elif field[position[0]][position[1]] != {}:
+                    present_entity = field[position[0]][position[1]]
+                    print("{} is already in the given position!".format(
+                        present_entity["name"]))
+                    break
                 if spawn_entity(defenses[choice - 1], position):
                     game_variables["gold"] -= defenses[choice - 1]["cost"]
                     game_variables["turn"] += 1
                 else:
-                    print("Failed to place unit. Is something already there?")
+                    print("Failed to place unit for unknown reasons.")
                 break
             else:
-                print("Not enough coins!")
+                print("You don't have enough gold to place this unit!")
         else:
             break
 
@@ -566,7 +571,7 @@ def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> li
     """Performs a circular impact area around a given position depending
     on the type of impact (expecting either a type of \"mine\" or \"heal\").
 
-    An assumption is made that healing enemies will take a turn.
+    An assumption is made that healing defenses will take a turn.
 
     Parameters:
         position (tuple): The position to impact the area around.
@@ -587,7 +592,7 @@ def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> li
               .format(chr(65 + row), field[row][col]["name"]))
     elif type == "heal":
         if game_variables["gold"] - 5 < 0:
-            print("You don't have enough goals to heal!")
+            print("You don't have enough gold to heal!")
             return
         game_variables["gold"] -= 5
         game_variables["turn"] += 1
