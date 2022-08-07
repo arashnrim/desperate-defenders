@@ -337,8 +337,8 @@ def save_game() -> bool:
 
         # Writes the headers in the file to identify the file as a saved
         # game.
-        lines.extend(["### DESPERATE DEFENDERS SAVE FILE ###",
-                     "\nThis file was created by the Desperate Defenders game. Do not change the ", "\nvalues in this file; otherwise, your game may change or be corrupted!"])
+        lines.extend(["### DESPERATE DEFENDERS SAVE FILE ###\n"] + [line + "\n" for line in wrap(
+            "This file was created by the desperate Defenders game. Do not change the values in this file; otherwise, your game may change or be corrupted!\n", width=72)])
 
         # Writes the game variables to the file.
         lines.append("\n\n# Game variables #")
@@ -407,6 +407,10 @@ def get_position(message="Place where?") -> Union[tuple, None]:
             assert re.match(
                 r"([A-Za-z]\d{1,2})|[Xx]", position), "Please provide the position in the format XY (where X is an alphabet, Y is a numeral)."
 
+            # Checks if the user cancelled the placement.
+            if position.lower() == "x":
+                return None
+
             # Checks if the provided row and col values are valid.
             row, col = position[0].upper(), int(position[1:])
             assert 0 <= ord(row) - 65 <= game_variables["rows"] - 1, "Please provide a valid row between A and {}.".format(
@@ -419,10 +423,6 @@ def get_position(message="Place where?") -> Union[tuple, None]:
         except AssertionError as error:
             print(error, end=" ")
         else:
-            # Checks if the user cancelled the placement.
-            if position.lower() == "x":
-                return None
-
             return ord(row) - 65, col - 1
 
 
