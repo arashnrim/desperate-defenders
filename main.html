@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module main</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>main</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/arashnrim/Development/desperate-defenders/main.py">/home/arashnrim/Development/desperate-defenders/main.py</a></font></td></tr></table>
+    <p><tt>#&nbsp;Programming&nbsp;I<br>
+#&nbsp;Assignment<br>
+#&nbsp;Arash&nbsp;Nur&nbsp;Iman&nbsp;(REDACTED,&nbsp;REDACTED)<br>
+#&nbsp;Last&nbsp;updated&nbsp;on&nbsp;7&nbsp;August&nbsp;2022</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="random.html">random</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-advance_entities"><strong>advance_entities</strong></a>()</dt><dd><tt>Performs&nbsp;all&nbsp;the&nbsp;logical&nbsp;code&nbsp;to&nbsp;advance&nbsp;the&nbsp;round,&nbsp;including<br>
+performing&nbsp;damage&nbsp;calculations&nbsp;and&nbsp;advancing&nbsp;enemies.</tt></dd></dl>
+ <dl><dt><a name="-display_intro_menu"><strong>display_intro_menu</strong></a>()</dt><dd><tt>Displays&nbsp;the&nbsp;menu&nbsp;to&nbsp;the&nbsp;user&nbsp;to&nbsp;start&nbsp;or&nbsp;restore&nbsp;a&nbsp;game.</tt></dd></dl>
+ <dl><dt><a name="-draw_field"><strong>draw_field</strong></a>()</dt><dd><tt>Prints&nbsp;the&nbsp;field&nbsp;in&nbsp;a&nbsp;player-friendly&nbsp;format.</tt></dd></dl>
+ <dl><dt><a name="-end_game"><strong>end_game</strong></a>(type: str, catalyst_entity=None)</dt><dd><tt>Ends&nbsp;the&nbsp;game&nbsp;in&nbsp;different&nbsp;ways,&nbsp;depending&nbsp;on&nbsp;the&nbsp;given&nbsp;type<br>
+(expecting&nbsp;either&nbsp;a&nbsp;type&nbsp;value&nbsp;of&nbsp;"win"&nbsp;or&nbsp;"loss").<br>
+&nbsp;<br>
+Depending&nbsp;on&nbsp;the&nbsp;given&nbsp;type,&nbsp;this&nbsp;function&nbsp;handles&nbsp;the&nbsp;printing&nbsp;of<br>
+the&nbsp;required&nbsp;text&nbsp;and&nbsp;ends&nbsp;the&nbsp;program.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;type&nbsp;(str):&nbsp;The&nbsp;type&nbsp;of&nbsp;end&nbsp;game&nbsp;to&nbsp;perform.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;catalyst_entity&nbsp;(dict):&nbsp;The&nbsp;entity&nbsp;that&nbsp;caused&nbsp;the&nbsp;end&nbsp;of&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;game.&nbsp;Expected&nbsp;only&nbsp;if&nbsp;type&nbsp;is&nbsp;"loss".</tt></dd></dl>
+ <dl><dt><a name="-enhance_defense"><strong>enhance_defense</strong></a>()</dt><dd><tt>Enhances&nbsp;the&nbsp;selected&nbsp;defense&nbsp;in&nbsp;the&nbsp;field.&nbsp;The&nbsp;enhancement&nbsp;can<br>
+only&nbsp;be&nbsp;applied&nbsp;to&nbsp;archers&nbsp;and&nbsp;walls,&nbsp;and&nbsp;enhancements&nbsp;to&nbsp;both&nbsp;are<br>
+as&nbsp;follows:<br>
+-&nbsp;Archers:&nbsp;min_damage&nbsp;+&nbsp;1,&nbsp;max_damage&nbsp;+&nbsp;1,&nbsp;health&nbsp;+&nbsp;1<br>
+-&nbsp;Walls:&nbsp;health&nbsp;+&nbsp;5<br>
+&nbsp;<br>
+It&nbsp;is&nbsp;assumed&nbsp;that,&nbsp;as&nbsp;with&nbsp;enemies&nbsp;being&nbsp;advanced,&nbsp;enhancing<br>
+defense&nbsp;does&nbsp;not&nbsp;advance&nbsp;the&nbsp;game&nbsp;by&nbsp;a&nbsp;turn.</tt></dd></dl>
+ <dl><dt><a name="-enhance_enemies"><strong>enhance_enemies</strong></a>()</dt><dd><tt>Enhances&nbsp;the&nbsp;enemies&nbsp;in&nbsp;the&nbsp;field&nbsp;and&nbsp;increases&nbsp;the&nbsp;danger&nbsp;level<br>
+by&nbsp;one.<br>
+&nbsp;<br>
+The&nbsp;enhancement&nbsp;to&nbsp;health&nbsp;only&nbsp;affects&nbsp;future&nbsp;enemies;&nbsp;current<br>
+enemies&nbsp;on&nbsp;the&nbsp;field&nbsp;are&nbsp;not&nbsp;affected&nbsp;when&nbsp;an&nbsp;enhancement&nbsp;takes<br>
+place.</tt></dd></dl>
+ <dl><dt><a name="-get_choice"><strong>get_choice</strong></a>(upper_bound: int, lower_bound=1, message='Your choice? ', val_error_message='Your choice should be numeric.') -&gt; int</dt><dd><tt>Prompts&nbsp;the&nbsp;user&nbsp;for&nbsp;a&nbsp;numeric&nbsp;choice&nbsp;and&nbsp;re-prompts&nbsp;them&nbsp;until<br>
+a&nbsp;valid&nbsp;choice&nbsp;is&nbsp;provided.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;upper_bound&nbsp;(int):&nbsp;The&nbsp;upper&nbsp;bound&nbsp;of&nbsp;the&nbsp;range&nbsp;of&nbsp;valid&nbsp;choices.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;lower_bound&nbsp;(int):&nbsp;The&nbsp;lower&nbsp;bound&nbsp;of&nbsp;the&nbsp;range&nbsp;of&nbsp;valid&nbsp;choices.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;message&nbsp;(str):&nbsp;The&nbsp;message&nbsp;to&nbsp;display&nbsp;to&nbsp;the&nbsp;player.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;val_error_message&nbsp;(str):&nbsp;The&nbsp;message&nbsp;to&nbsp;display&nbsp;if&nbsp;the&nbsp;player's&nbsp;choice&nbsp;is&nbsp;not&nbsp;valid&nbsp;(returns&nbsp;a&nbsp;ValueError).<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;int:&nbsp;The&nbsp;user's&nbsp;choice.</tt></dd></dl>
+ <dl><dt><a name="-get_position"><strong>get_position</strong></a>(message='Place where?') -&gt; Union[tuple, NoneType]</dt><dd><tt>Prompts&nbsp;the&nbsp;user&nbsp;for&nbsp;a&nbsp;position&nbsp;and&nbsp;re-prompts&nbsp;them&nbsp;until<br>
+a&nbsp;valid&nbsp;position&nbsp;is&nbsp;provided.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;message&nbsp;(str):&nbsp;The&nbsp;message&nbsp;to&nbsp;display&nbsp;to&nbsp;the&nbsp;player.&nbsp;The&nbsp;message<br>
+&nbsp;&nbsp;&nbsp;&nbsp;should&nbsp;be&nbsp;whitespace-stripped&nbsp;(no&nbsp;trailing&nbsp;whitespaces).<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tuple:&nbsp;The&nbsp;user-provided&nbsp;position,&nbsp;comprised&nbsp;of&nbsp;(row,&nbsp;col).</tt></dd></dl>
+ <dl><dt><a name="-load_game"><strong>load_game</strong></a>() -&gt; bool</dt><dd><tt>Attempts&nbsp;to&nbsp;restore&nbsp;a&nbsp;saved&nbsp;game.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;if&nbsp;the&nbsp;game&nbsp;has&nbsp;been&nbsp;restored&nbsp;successfully,&nbsp;False&nbsp;otherwise.</tt></dd></dl>
+ <dl><dt><a name="-manage_game_settings"><strong>manage_game_settings</strong></a>()</dt><dd><tt>Displays&nbsp;the&nbsp;menu&nbsp;with&nbsp;the&nbsp;game&nbsp;settings,&nbsp;and&nbsp;allows&nbsp;the&nbsp;player<br>
+to&nbsp;alter&nbsp;the&nbsp;game&nbsp;settings.</tt></dd></dl>
+ <dl><dt><a name="-progress_game"><strong>progress_game</strong></a>(previous_turn=0)</dt><dd><tt>Begins&nbsp;all&nbsp;the&nbsp;processes&nbsp;needed&nbsp;to&nbsp;start&nbsp;or&nbsp;progress&nbsp;the&nbsp;game.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;previous_turn&nbsp;(int):&nbsp;The&nbsp;turn&nbsp;number&nbsp;of&nbsp;the&nbsp;previous&nbsp;game.</tt></dd></dl>
+ <dl><dt><a name="-purchase_defense"><strong>purchase_defense</strong></a>()</dt><dd><tt>Prompts&nbsp;the&nbsp;player&nbsp;to&nbsp;purchase&nbsp;a&nbsp;defense&nbsp;unit.</tt></dd></dl>
+ <dl><dt><a name="-save_game"><strong>save_game</strong></a>() -&gt; bool</dt><dd><tt>Saves&nbsp;the&nbsp;game&nbsp;to&nbsp;a&nbsp;file.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;if&nbsp;the&nbsp;game&nbsp;was&nbsp;saved&nbsp;successfully,&nbsp;False&nbsp;otherwise.</tt></dd></dl>
+ <dl><dt><a name="-show_stats"><strong>show_stats</strong></a>()</dt><dd><tt>Shows&nbsp;the&nbsp;users&nbsp;statistics&nbsp;of&nbsp;the&nbsp;game.&nbsp;Includes&nbsp;the&nbsp;current&nbsp;turn<br>
+number,&nbsp;threat&nbsp;level,&nbsp;danger&nbsp;level,&nbsp;amount&nbsp;of&nbsp;gold,&nbsp;and&nbsp;number&nbsp;of<br>
+monsters&nbsp;killed.</tt></dd></dl>
+ <dl><dt><a name="-spawn_enemy"><strong>spawn_enemy</strong></a>(override=False)</dt><dd><tt>Spawns&nbsp;a&nbsp;random&nbsp;enemy&nbsp;in&nbsp;any&nbsp;row&nbsp;of&nbsp;the&nbsp;last&nbsp;column.&nbsp;Depends&nbsp;on<br>
+<a href="#-spawn_entity">spawn_entity</a>().<br>
+&nbsp;<br>
+By&nbsp;default,&nbsp;an&nbsp;enemy&nbsp;will&nbsp;only&nbsp;be&nbsp;spawned&nbsp;when&nbsp;there&nbsp;are&nbsp;no&nbsp;more<br>
+enemies&nbsp;on&nbsp;the&nbsp;board.&nbsp;In&nbsp;some&nbsp;special&nbsp;cases&nbsp;though,&nbsp;like&nbsp;when&nbsp;the<br>
+threat&nbsp;level&nbsp;surpases&nbsp;the&nbsp;limit,&nbsp;an&nbsp;override&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;spawn<br>
+the&nbsp;enemy&nbsp;regardless&nbsp;of&nbsp;the&nbsp;state&nbsp;of&nbsp;the&nbsp;field.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;override&nbsp;(bool):&nbsp;If&nbsp;True,&nbsp;spawns&nbsp;an&nbsp;enemy&nbsp;in&nbsp;the&nbsp;last&nbsp;column&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;last&nbsp;row&nbsp;regardless&nbsp;of&nbsp;the&nbsp;current&nbsp;circumstances.</tt></dd></dl>
+ <dl><dt><a name="-spawn_entity"><strong>spawn_entity</strong></a>(entity: dict, position: tuple) -&gt; bool</dt><dd><tt>Spawns&nbsp;a&nbsp;provided&nbsp;entity&nbsp;at&nbsp;the&nbsp;provided&nbsp;position.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;also&nbsp;handles&nbsp;the&nbsp;logic&nbsp;validating&nbsp;if&nbsp;a&nbsp;placement&nbsp;is<br>
+possible;&nbsp;if&nbsp;not&nbsp;(such&nbsp;as&nbsp;when&nbsp;an&nbsp;entity&nbsp;is&nbsp;in&nbsp;the&nbsp;way,&nbsp;or&nbsp;some<br>
+other&nbsp;problem&nbsp;that&nbsp;would&nbsp;forbid&nbsp;the&nbsp;placement&nbsp;of&nbsp;the&nbsp;entity),&nbsp;this<br>
+function&nbsp;handles&nbsp;that&nbsp;by&nbsp;returning&nbsp;False.&nbsp;Otherwise,&nbsp;it&nbsp;returns&nbsp;True.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;entity&nbsp;(dict):&nbsp;The&nbsp;entity&nbsp;to&nbsp;spawn.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;position&nbsp;(tuple):&nbsp;The&nbsp;position&nbsp;to&nbsp;spawn&nbsp;the&nbsp;entity,&nbsp;comprised&nbsp;of&nbsp;(row,&nbsp;col).<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;if&nbsp;the&nbsp;entity&nbsp;was&nbsp;spawned,&nbsp;False&nbsp;if&nbsp;not.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>CHARACTERS</strong> = {'enemy': [{'health': 15, 'id': 'ZOMBI', 'max_damage': 6, 'min_damage': 3, 'moves': 1, 'name': 'Zombie', 'reward': 2}, {'health': 10, 'id': 'WWOLF', 'max_damage': 4, 'min_damage': 1, 'moves': 2, 'name': 'Werewolf', 'reward': 3}, {'health': 10, 'id': 'SKELE', 'max_damage': 3, 'min_damage': 1, 'moves': 1, 'name': 'Skeleton', 'reward': 3}], 'player': [{'cost': 5, 'health': 5, 'id': 'ARCHR', 'max_damage': 4, 'min_damage': 1, 'name': 'Archer'}, {'cost': 3, 'health': 20, 'id': 'WALL', 'max_damage': 0, 'min_damage': 0, 'name': 'Wall'}, {'cost': 7, 'health': 8, 'id': 'CANON', 'max_damage': 5, 'min_damage': 3, 'name': 'Cannon'}]}<br>
+<strong>SAVE_GAME_FILE_NAME</strong> = 'saved_game.dd'<br>
+<strong>Union</strong> = typing.Union<br>
+<strong>field</strong> = [[{}, {}, {}, {}, {}, {}, {}], [{}, {}, {}, {}, {}, {}, {}], [{}, {}, {}, {}, {}, {}, {}], [{}, {}, {}, {}, {}, {}, {}], [{}, {}, {}, {}, {}, {}, {}]]<br>
+<strong>game_variables</strong> = {'columns': 7, 'danger_level': 1, 'gold': 10, 'killed': 0, 'rows': 5, 'target': 20, 'threat_level': 0, 'turn': 0}<br>
+<strong>inf</strong> = inf<br>
+<strong>redundant_game_variables</strong> = {'columns': 7, 'danger_level': 1, 'gold': 10, 'killed': 0, 'rows': 5, 'target': 20, 'threat_level': 0, 'turn': 0}</td></tr></table>
+</body></html>
