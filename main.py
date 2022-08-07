@@ -88,6 +88,14 @@ CHARACTERS = {
             "min_damage": 3,
             "max_damage": 5,
             "cost": 7
+        },
+        {
+            "id": "MINE",
+            "name": "Mine",
+            "health": 10,
+            "min_damage": 10,
+            "max_damage": 10,
+            "cost": 8
         }
     ],
     "enemy": [
@@ -554,6 +562,40 @@ def purchase_defense():
             break
 
 
+def impact_area(position: tuple, type: str, catalyst_entity_position=None) -> list:
+    """Performs a circular impact area around a given position depending
+    on the type of impact (expecting either a type of \"mine\" or \"heal\").
+
+    Parameters:
+        position (tuple): The position to impact the area around.
+        type (str): The type of impact to perform. Expects either \"mine\" or \"heal\".
+        catalyst_entity_position (tuple): The position of the entity
+        that caused the impact.
+    Returns:
+        list: A list of all cells within the radius of the position.
+    """
+    row, col = position
+    if catalyst_entity_position is not None:
+        cat_row, cat_col = catalyst_entity_position
+        catalyst_entity = field[cat_row][cat_col]
+        field[row][col], field[cat_row][cat_col] = catalyst_entity, {}
+
+    if type == "mine":
+        print("[<] Mine in lane {} was detonated by {}!"
+              .format(chr(65 + row), field[row][col]["name"]))
+    for r_index in range(row - 1, row + 2):
+        for c_index in range(col - 1, col + 2):
+            if 0 <= r_index < game_variables["rows"] and 0 <= c_index < game_variables["columns"]:
+                entity_in_radius = field[r_index][c_index]
+                if entity_in_radius != {} and entity_in_radius["type"] == "enemy" and type == "mine":
+                    print("[>] {} in lane {} was dealt 10 damage by an exploding mine!".format(
+                        entity_in_radius["name"], chr(65 + row)))
+                    entity_in_radius["current_health"] -= 10
+                    if entity_in_radius["current_health"] <= 0:
+                        print("[>] {} dies!".format(entity_in_radius["name"]))
+                        field[r_index][c_index] = {}
+
+
 def advance_entities():
     """Performs all the logical code to advance the round, including
     performing damage calculations and advancing enemies."""
@@ -635,7 +677,16 @@ def advance_entities():
                         print("[<] {} advances!".format(entity["name"]))
                         field[r_index][c_index] = {}
 
-                    if entity_to_attack is not None:
+                    if entity_to_attack is not None and entity_to_attack["id"] == "MINE":
+                        target_cell = None
+                        if entity_to_attack == ahead_cell:
+                            target_cell = c_index - 1
+                        elif entity_to_attack == future_cell:
+                            target_cell = resulting_col
+                        entity_to_attack = entity
+                        impact_area((r_index, target_cell),
+                                    "mine", (r_index, c_index))
+                    elif entity_to_attack is not None:
                         entity_to_attack["current_health"] -= damage
 
                         print("[<] {} in lane {} bites {} for {} damage!".format(
