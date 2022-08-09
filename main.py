@@ -718,7 +718,7 @@ def advance_entities():
                     elif entity_to_attack is not None:
                         entity_to_attack["current_health"] -= damage
 
-                        print("[<] {} in lane {} bites {} for {} damage!".format(
+                        print("[<] {} in lane {} attacks {} for {} damage!".format(
                             entity["name"], chr(65 + r_index), entity_to_attack["name"], damage))
 
                         if entity_to_attack["current_health"] <= 0:
