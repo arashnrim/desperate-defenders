@@ -613,6 +613,9 @@ def impact_area(position: tuple, type: str, catalyst_entity_position=None):
                     entity_in_radius["current_health"] -= 10
                     if entity_in_radius["current_health"] <= 0:
                         print("[>] {} dies!".format(entity_in_radius["name"]))
+                        game_variables["gold"] += entity_in_radius["reward"]
+                        game_variables["killed"] += 1
+                        game_variables["threat_level"] += entity_in_radius["reward"]
                         field[r_index][c_index] = {}
                 elif entity_in_radius != {} and entity_in_radius["type"] == "player" and type == "heal":
                     print("[>] {} in lane {} was healed by 5 points!".format(
